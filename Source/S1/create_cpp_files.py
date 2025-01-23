@@ -52,15 +52,14 @@ public:
 #include "{}.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME({})
 
-// 기본 생성자
-{}::{}(const FObjectInitializer& ObjectInitialize)
-    : Super(ObjectInitialize)
+{}::{}(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {{
 
 }}
 
 
-""".format(class_name, cclass_name, cclass_name, cclass_name, cclass_name, class_name)
+""".format(class_name, class_name, cclass_name, cclass_name, cclass_name, class_name)
 
     # 파일 생성 및 저장
     with open(header_filename, 'w') as header_file:

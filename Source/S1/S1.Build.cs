@@ -10,7 +10,20 @@ public class S1 : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] { "S1" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG" });
+        PublicDependencyModuleNames.AddRange(new string[] 
+		{ 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput", 
+			"UMG",
+			// GAS
+			"GameplayTags",
+			// Game Features
+			"ModularGameplay",
+            "GameFeatures",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

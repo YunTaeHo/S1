@@ -1,5 +1,6 @@
 ﻿#include "S1AssetMaanger.h"
 #include "S1LogChannel.h"
+#include "S1GameplayTags.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1AssetMaanger)
 
 US1AssetMaanger::US1AssetMaanger()
@@ -86,4 +87,7 @@ void US1AssetMaanger::StartInitialLoading()
 
 	// 로깅한다
 	UE_LOG(LogS1, Display, TEXT("US1AssetMaanger::StartInitialLoading"));
+
+	// @TODO - 나중에 STARTUP_JOB으로 구현
+	FS1GameplayTags::InitializeNativeTags();
 }
