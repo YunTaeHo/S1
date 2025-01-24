@@ -9,6 +9,7 @@
 #include "Player/S1PlayerState.h"
 #include "Character/S1Character.h"
 #include "Character/S1PawnData.h"
+#include "Character/S1PawnHandler.h"
 #include "S1LogChannel.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1GameModeBase)
 
@@ -45,8 +46,29 @@ void AS1GameModeBase::InitGameState()
 
 APawn* AS1GameModeBase::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {
-	UE_LOG(LogS1, Log, TEXT("SpawnDefaultPawnAtTransform_Implementation is called!!"));
-	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Instigator = GetInstigator();
+	SpawnInfo.ObjectFlags |= RF_Transient;
+	SpawnInfo.bDeferConstruction = true;
+
+	if (UClass* PawnClass = GetDefaultPawnClassForController(NewPlayer))
+	{
+		if (APawn* SpawnedPawn = GetWorld()->SpawnActor<APawn>(PawnClass, SpawnTransform, SpawnInfo))
+		{
+			if (US1PawnHandler* PawnHandler = US1PawnHandler::FindPawnHandler(SpawnedPawn))
+			{
+				if (const US1PawnData* PawnData = GetPawnDataForController(NewPlayer))
+				{
+					PawnHandler->SetPawnData(PawnData);
+				}
+			}
+			SpawnedPawn->FinishSpawning(SpawnTransform);
+			return SpawnedPawn;
+
+		}
+	}
+
+	return nullptr;
 }
 
 void AS1GameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)

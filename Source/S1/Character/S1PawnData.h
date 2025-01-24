@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Engine/DataAsset.h"
+#include "Camera/S1CameraMode.h"
 #include "S1PawnData.generated.h"
 
 UCLASS()
@@ -20,4 +21,7 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|Pawn")
     TSubclassOf<APawn> PawnClass;
 
+    /** Camera Mode */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|Pawn")
+    TSubclassOf<US1CameraMode> DefaultCameraMode;
 }; 
