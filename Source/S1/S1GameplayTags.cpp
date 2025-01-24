@@ -23,6 +23,11 @@ void FS1GameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(InitState_DataInitialized, "InitState.DataInitialized", "3: The available data has been initialized for this actor/component, but it is not ready full gameplay");
 	AddTag(InitState_GameplayReady, "InitState.GameplayReady", "4: Actor/Component is fully ready for active gameplay");
 
+	/*
+	 *	Enhanced Input Tags
+	 */
+	AddTag(InputTag_Move, "InputTag.Move", "");
+	AddTag(InputTag_Look_Mouse, "InputTag.Look.Mouse", "");
 }
 
 

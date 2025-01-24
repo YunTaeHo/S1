@@ -38,6 +38,10 @@ struct FS1GameplayTags
     FGameplayTag InitState_DataInitialized;
     FGameplayTag InitState_GameplayReady;
 
+    FGameplayTag InputTag_Move;
+    FGameplayTag InputTag_Look_Mouse;
+
+
 private:
     static FS1GameplayTags GameplayTags;
 };

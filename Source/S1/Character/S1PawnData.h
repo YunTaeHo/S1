@@ -5,6 +5,7 @@
 
 #include "Engine/DataAsset.h"
 #include "Camera/S1CameraMode.h"
+#include "Input/S1InputConfig.h"
 #include "S1PawnData.generated.h"
 
 UCLASS()
@@ -22,6 +23,11 @@ public:
     TSubclassOf<APawn> PawnClass;
 
     /** Camera Mode */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|Pawn")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|Camera")
     TSubclassOf<US1CameraMode> DefaultCameraMode;
+
+    /** Input Config는 컨트롤러가 Possess한 플레이어가 사용하게 된다 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|InputConfig")
+    TObjectPtr<US1InputConfig> InputConfig;
+
 }; 

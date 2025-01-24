@@ -5,10 +5,16 @@
 #include "S1LogChannel.h"
 #include "S1PawnHandler.h"
 #include "S1GameplayTags.h"
+#include "PlayerMappableInputConfig.h"
+#include "EnhancedInputSubsystems.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "Player/S1PlayerState.h"
+#include "Player/S1PlayerController.h"
 #include "Camera/S1CameraComponent.h"
+#include "Input/S1MappableConfigPair.h"
+#include "Input/S1InputComponent.h"
 #include "Character/S1PawnData.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
 
@@ -41,7 +47,6 @@ TSubclassOf<US1CameraMode> US1PlayerComponent::DetermineCameraMode() const
     return nullptr;
 }
 PRAGMA_ENABLE_OPTIMIZATION
-
 
 
 void US1PlayerComponent::OnRegister()
@@ -168,8 +173,6 @@ void US1PlayerComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
             return;
         }
 
-        // @TODO Input과 Camera에 대한 핸들링
-
         const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
         const US1PawnData* PawnData = nullptr;
         if (US1PawnHandler* PawnHandler = US1PawnHandler::FindPawnHandler(Pawn))
@@ -185,6 +188,122 @@ void US1PlayerComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
                 CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
             }
         }
+
+        if (AS1PlayerController* S1PC = GetController<AS1PlayerController>())
+        {
+            if (Pawn->InputComponent != nullptr)
+            {
+                InitializePlayerInput(Pawn->InputComponent);
+            }
+        }
+    }
+}
+
+void US1PlayerComponent::InitializePlayerInput(UInputComponent* PlayerInputComponent)
+{
+    check(PlayerInputComponent);
+
+    const APawn* Pawn = GetPawn<APawn>();
+    if (!Pawn)
+    {
+        return;
+    }
+
+    // LocalPlayer를 가져오기 위해
+    const APlayerController* PC = GetController<APlayerController>();
+    check(PC);
+
+    // EnhancedInputLocalPlayerSubsystem 가져오기 위해
+    const ULocalPlayer* LP = PC->GetLocalPlayer();
+
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem< UEnhancedInputLocalPlayerSubsystem>();
+    check(Subsystem);
+
+    // UEnhancedInputLocalPlayerSubsystem에 MappingContext를 비워준다
+    Subsystem->ClearAllMappings();
+
+    // PawnHandler -> PawnData -> InputConfig 존재 유무 판단
+    if (const US1PawnHandler* PawnHandler = US1PawnHandler::FindPawnHandler(Pawn))
+    {
+        if (const US1PawnData* PawnData = PawnHandler->GetPawnData<US1PawnData>())
+        {
+            if (const US1InputConfig* InputConfig = PawnData->InputConfig)
+            {
+                const FS1GameplayTags& GameplayTags = FS1GameplayTags::Get();
+
+                // PlayerComponent가 가지고 있는 Input Mapping Context를 순회하며, UEnhancedInputLocalPlayerSubsystem에 추가한다
+                for (const FS1MappableConfigPair& Pair : DefaultInputConfig)
+                {
+                    if (Pair.bShouldActivateAutomatically)
+                    {
+                        FModifyContextOptions Options = {};
+                        Options.bIgnoreAllPressedKeysUntilRelease = false;
+                        
+                        Subsystem->AddPlayerMappableConfig(Pair.Config.LoadSynchronous(), Options);
+                    }
+                }
+
+                US1InputComponent* S1IC = CastChecked<US1InputComponent>(PlayerInputComponent);
+                {
+                    // InputTag_Move와 InputTag_Look_Mouse에 대해 각각 Input_Move()와 Input_LookMouse() 멤버 함수에 바인딩시킨다
+                    // - 바인딩 이후, Input 이벤트에 따라 멤버 함수가 트리거된다
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
+                }
+            }
+        }
+    }
+}
+
+void US1PlayerComponent::Input_Move(const FInputActionValue& InputActionValue)
+{
+    APawn* Pawn = GetPawn<APawn>();
+    AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+
+    if (Controller)
+    {
+        const FVector2D Value = InputActionValue.Get<FVector2D>();
+        const FRotator MovementRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+
+        if (Value.X != 0.f)
+        {
+            // Left/Right -> X 값에 들어있음
+            // MovementDirection은 현재 카메라의 RightVector를 의미함 (World-Space)
+            const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+
+            Pawn->AddMovementInput(MovementDirection, Value.X);
+        }
+
+        if (Value.Y != 0.f)
+        {
+            // Left/Right와 마찬가지로 Forward/Backword를 적용
+            const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+            Pawn->AddMovementInput(MovementDirection, Value.Y);
+        }
+    }
+}
+
+void US1PlayerComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+    APawn* Pawn = GetPawn<APawn>();
+    if (!Pawn)
+    {
+        return;
+    }
+
+    const FVector2D Value = InputActionValue.Get<FVector2D>();
+    if (Value.X != 0.f)
+    {
+        // X : Yaw값
+        // Camera에 대해 Yaw 값 적용
+        Pawn->AddControllerYawInput(Value.X);
+    }
+
+    if (Value.Y != 0.f)
+    {
+        // Y : Pitch값
+        double AimInversionValue = -Value.Y;
+        Pawn->AddControllerPitchInput(AimInversionValue);
     }
 }
 
