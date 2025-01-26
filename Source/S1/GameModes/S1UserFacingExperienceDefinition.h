@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "S1UserFacingExperienceDefinition.generated.h"
 
+class UCommonSession_HostSessionRequest;
+
 /**
  * 
  */
@@ -15,6 +17,13 @@ class S1_API US1UserFacingExperienceDefinition : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
+
+	/*
+	 *	Map 로딩 및 Experience 전환을 위해, MapID와 ExperienceID를 활용해 HostSessionRequest 생성
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure=false)
+	UCommonSession_HostSessionRequest* CreateHostingRequest() const;
+
 	/*
 	 * member variables
 	 */

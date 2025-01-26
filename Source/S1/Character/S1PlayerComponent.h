@@ -27,6 +27,7 @@ public:
 
     /** FeatureName 정의 */
     static const FName NAME_ActorFeatureName;
+    static const FName NAME_BindInputsNow;
 
     /*
      *  UPawnComponent`s Interfaces

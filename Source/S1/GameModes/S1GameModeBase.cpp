@@ -11,6 +11,7 @@
 #include "Character/S1PawnData.h"
 #include "Character/S1PawnHandler.h"
 #include "S1LogChannel.h"
+#include "Kismet/GameplayStatics.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1GameModeBase)
 
 AS1GameModeBase::AS1GameModeBase(const FObjectInitializer& ObjectInitializer)
@@ -96,12 +97,24 @@ UClass* AS1GameModeBase::GetDefaultPawnClassForController_Implementation(AContro
 }
 
 // 해당 함수에서는 우리가 로딩할 Expierience에 대해 PrimaryAssetId를 생성하먀, OnMtachAssignmentGive으로 넘겨준다
+PRAGMA_DISABLE_OPTIMIZATION
 void AS1GameModeBase::HandleMatchAssignmentIfNoExpectingOne()
 {
 	FPrimaryAssetId ExperienceId;
 
 	UWorld* World = GetWorld();
 
+	// URL과 함께 ExtraArgs로 넘겼던 정보는 OptionStrint에도 저장되어 있다
+	//	- 로딩 정보들을 Option을 Parse해서 사용하도록 하자
+	if (!ExperienceId.IsValid() && UGameplayStatics::HasOption(OptionsString, TEXT("Experience")))
+	{
+		// Experience의 Value를 가져와서 PrimaryAssetId를 생성해준다
+		//	- S1ExperienceDefintion의 Class 이름을 사용
+		const FString ExperienceFromOptions = UGameplayStatics::ParseOption(OptionsString, TEXT("Experience"));
+		ExperienceId = FPrimaryAssetId(US1ExperienceDefinition::StaticClass()->GetFName(), FName(*ExperienceFromOptions));
+	}
+
+	// Experience가 존재하지 않는다면 Default Setting으로 설정
 	if (!ExperienceId.IsValid())
 	{
 		ExperienceId = FPrimaryAssetId("S1ExperienceDefinition", FName("B_S1DefaultExperience"));
@@ -115,6 +128,7 @@ void AS1GameModeBase::HandleMatchAssignmentIfNoExpectingOne()
 	check(ExperienceManagerComponent);
 	ExperienceManagerComponent->SetCurrentExperience(ExperienceId);
 }
+PRAGMA_ENABLE_OPTIMIZATION
 
 bool AS1GameModeBase::IsExperienceLoaded() const
 {

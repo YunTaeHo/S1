@@ -18,7 +18,12 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
 
+/** FeatureName 정의 : static member variable 초기화 */
 const FName US1PlayerComponent::NAME_ActorFeatureName("PlayerComponent");
+
+/** InputConfig의 GameFeatureAction 활성화 ExtensionEvent 이름 */
+const FName US1PlayerComponent::NAME_BindInputsNow("BindInputsNow");
+
 
 US1PlayerComponent::US1PlayerComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
@@ -253,6 +258,9 @@ void US1PlayerComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
             }
         }
     }
+
+    // GameFeatureAction_AddInputConfig의 HandlePawnExtension 콜백 함수 전달
+    UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
 
 void US1PlayerComponent::Input_Move(const FInputActionValue& InputActionValue)

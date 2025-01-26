@@ -23,6 +23,10 @@ public class S1 : ModuleRules
 			// Game Features
 			"ModularGameplay",
             "GameFeatures",
+			// CommonUser
+            "CommonUser",
+			// ModularGameplayActors
+			"ModularGameplayActors",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

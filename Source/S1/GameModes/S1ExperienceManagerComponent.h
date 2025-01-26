@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/GameStateComponent.h"
+#include "GameFeaturePluginOperationResult.h"
 #include "S1ExperienceManagerComponent.generated.h"
 
 class US1ExperienceDefinition;
@@ -13,6 +14,8 @@ enum class ES1ExperienceLoadState
 {
     Unloaded,
     Loading,
+    LoadingGameFeatures,
+    ExecutingActions,
     Loaded,
     Deactivating,
 };
@@ -45,6 +48,7 @@ public:
     void SetCurrentExperience(FPrimaryAssetId ExperienceId);
     void StartExperienceLoad();
     void OnExperienceLoadComplete();
+    void OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result);
     void OnExperienceFullLoadComplete();
     const US1ExperienceDefinition* GetCurrentExperienceChecked() const;
 
@@ -60,5 +64,10 @@ public:
 
     /** Experience 로딩이 완료된 이후, Broadcasting Delegate */
     FOnS1ExperienceLoaded OnExperienceLoaded;
+
+    /** 활성화된 GameFeature Plugin들 */
+    int32 NumGameFeaturePluginsLoading = 0;
+    TArray<FString> GameFeautrePluginURLs;
+
 
 }; 

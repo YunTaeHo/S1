@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "ModularCharacter.h"
 #include "S1Character.generated.h"
 
 class US1PawnHandler;
 class US1CameraComponent;
 
 UCLASS()
-class S1_API AS1Character : public ACharacter
+class S1_API AS1Character : public AModularCharacter
 {
 	GENERATED_BODY()
 

@@ -3,7 +3,10 @@
 
 #include "S1ExperienceManagerComponent.h"
 #include "S1ExperienceDefinition.h"
+#include "S1ExperienceActionSet.h"
 #include "System/S1AssetMaanger.h"
+#include "GameFeaturesSubsystem.h"
+#include "GameFeatureAction.h"
 #include "GameFeaturesSubsystemSettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1ExperienceManagerComponent)
@@ -116,18 +119,108 @@ void US1ExperienceManagerComponent::OnExperienceLoadComplete()
     // FrameNumber 확인용 변수(로딩 시간 체크)
     static int32 OnExperienceLoadComplete_FrameNumber = GFrameNumber;
 
-    
-    OnExperienceFullLoadComplete();
+    check(LoadState == ES1ExperienceLoadState::Loading);
+    check(CurrentExperience);
+
+    // 이전에 활성된 플러그인 클리어
+    GameFeautrePluginURLs.Reset();
+
+    auto CollectionGameFeaturePluginURLs = [This = this](const UPrimaryDataAsset* Context, const TArray<FString>& FeaturePluginList)
+    {
+        // FeaturePluginList를 순회하며, PluginRL을 ExperienceManagerComponent의 GameFeaturePluginURLs에 추가
+        for (const FString& PluginName : FeaturePluginList)
+        {
+            FString PluginRL;
+            if (UGameFeaturesSubsystem::Get().GetPluginURLByName(PluginName, PluginRL))
+            {
+                This->GameFeautrePluginURLs.AddUnique(PluginRL);
+            }
+        }
+    };
+
+    // 활성화할 GameFeature를 등록
+    CollectionGameFeaturePluginURLs(CurrentExperience, CurrentExperience->GameFeaturesToEnable);
+
+    // GameFeaturePluginURLs에 등록된 Plugin을 로딩 및 활성화
+    NumGameFeaturePluginsLoading = GameFeautrePluginURLs.Num();
+    if (NumGameFeaturePluginsLoading)
+    {
+        LoadState = ES1ExperienceLoadState::LoadingGameFeatures;
+        for (const FString& PluginURL : GameFeautrePluginURLs)
+        {
+            UGameFeaturesSubsystem::Get().LoadAndActivateGameFeaturePlugin(PluginURL, FGameFeaturePluginLoadComplete::CreateUObject(this, &ThisClass::OnGameFeaturePluginLoadComplete));
+        }
+    }
+    else
+    {
+        OnExperienceFullLoadComplete();
+    }
+
 }
 
+
+void US1ExperienceManagerComponent::OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result)
+{
+    NumGameFeaturePluginsLoading--;
+
+    // GameFeature 로딩이 다 끝났어?
+    if (NumGameFeaturePluginsLoading == 0)
+    {
+        // Loaded에서 마지막 마무리를 해주자
+        OnExperienceFullLoadComplete();
+    }
+}
+
+
+PRAGMA_DISABLE_OPTIMIZATION
 void US1ExperienceManagerComponent::OnExperienceFullLoadComplete()
 {
     check(LoadState != ES1ExperienceLoadState::Loaded);
+
+    // GameFeature Plugin의 로딩과 활성화 이후, GameFeature Action들을 활성화시키자:
+    {
+        LoadState = ES1ExperienceLoadState::ExecutingActions;
+
+        // GameFeatureAction 활성화를 위한 Context 준비
+        FGameFeatureActivatingContext Context;
+        {
+            // 월드의 핸들을 세팅해준다
+            const FWorldContext* ExistingWorldContext = GEngine->GetWorldContextFromWorld(GetWorld());
+            if (ExistingWorldContext)
+            {
+                Context.SetRequiredWorldContextHandle(ExistingWorldContext->ContextHandle);
+            }
+        }
+
+        auto ActivateListOfActions = [&Context](const TArray<UGameFeatureAction*>& ActionList)
+        {
+            for (UGameFeatureAction* Action : ActionList)
+            {
+                // 명시적으로 UGameFeatureAction에 대해 Registering -> Loading -> Activating 순으로 호출
+                if (Action)
+                {
+                    Action->OnGameFeatureRegistering();
+                    Action->OnGameFeatureLoading();
+                    Action->OnGameFeatureActivating(Context);
+                }
+            }
+        };
+
+        // 1. Experience의 Actions
+        ActivateListOfActions(CurrentExperience->Actions);
+
+        // 2. Experience의 ActionSets
+        for (const TObjectPtr<US1ExperienceActionSet>& ActionSet : CurrentExperience->ActionSet)
+        {
+            ActivateListOfActions(ActionSet->Actions);
+        }
+    }
 
     LoadState = ES1ExperienceLoadState::Loaded;
     OnExperienceLoaded.Broadcast(CurrentExperience);
     OnExperienceLoaded.Clear();
 }
+PRAGMA_ENABLE_OPTIMIZATION
 
 const US1ExperienceDefinition* US1ExperienceManagerComponent::GetCurrentExperienceChecked() const
 {
@@ -135,5 +228,4 @@ const US1ExperienceDefinition* US1ExperienceManagerComponent::GetCurrentExperien
     check(CurrentExperience != nullptr);
     return CurrentExperience;
 }
-
 
