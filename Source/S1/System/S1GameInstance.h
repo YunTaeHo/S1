@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include "Engine/GameInstance.h"
+#include "CommonGameInstance.h"
 #include "S1GameInstance.generated.h"
 
 
 UCLASS()
-class S1_API US1GameInstance : public UGameInstance
+class S1_API US1GameInstance : public UCommonGameInstance
 {
     GENERATED_BODY()
 

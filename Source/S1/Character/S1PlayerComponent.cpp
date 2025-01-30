@@ -13,9 +13,8 @@
 #include "Camera/S1CameraComponent.h"
 #include "Input/S1MappableConfigPair.h"
 #include "Input/S1InputComponent.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Character/S1PawnData.h"
-
-
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
 
 /** FeatureName 정의 : static member variable 초기화 */
@@ -183,6 +182,10 @@ void US1PlayerComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
         if (US1PawnHandler* PawnHandler = US1PawnHandler::FindPawnHandler(Pawn))
         {
             PawnData = PawnHandler->GetPawnData<US1PawnData>();
+
+            // DataInitialized 단계까지 오면, Pawn이 Controller에 Possess되어 준비된 상태이다:
+            // InitializeActorInfo 호출로 AvatarActor 재설정이 필요하다
+            PawnHandler->InitializeAbilitySystem(S1PS->GetS1AbilitySystemComponent(), S1PS);
         }
 
         if (bIsLocallyControlled && PawnData)
@@ -252,6 +255,10 @@ void US1PlayerComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
                 {
                     // InputTag_Move와 InputTag_Look_Mouse에 대해 각각 Input_Move()와 Input_LookMouse() 멤버 함수에 바인딩시킨다
                     // - 바인딩 이후, Input 이벤트에 따라 멤버 함수가 트리거된다
+                    {
+                        TArray<uint32> BindHandles;
+                        S1IC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, BindHandles);
+                    }
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
                 }
@@ -312,6 +319,34 @@ void US1PlayerComponent::Input_LookMouse(const FInputActionValue& InputActionVal
         // Y : Pitch값
         double AimInversionValue = -Value.Y;
         Pawn->AddControllerPitchInput(AimInversionValue);
+    }
+}
+
+void US1PlayerComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
+{
+    if (const APawn* Pawn = GetPawn<APawn>())
+    {
+        if (const US1PawnHandler* PawnHandler = US1PawnHandler::FindPawnHandler(Pawn))
+        {
+            if (US1AbilitySystemComponent* S1ASC = PawnHandler->GetS1AbilitySystemComponent())
+            {
+                S1ASC->AbilityInputTagPressed(InputTag);
+            }
+        }
+    }
+}
+
+void US1PlayerComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
+{
+    if (const APawn* Pawn = GetPawn<APawn>())
+    {
+        if (const US1PawnHandler* PawnHandler = US1PawnHandler::FindPawnHandler(Pawn))
+        {
+            if (US1AbilitySystemComponent* S1ASC = PawnHandler->GetS1AbilitySystemComponent())
+            {
+                S1ASC->AbilityInputTagReleased(InputTag);
+            }
+        }
     }
 }
 

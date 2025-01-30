@@ -3,16 +3,30 @@
 
 #pragma once
 
-#include "ModularPlayerController.h"
+#include "CommonPlayerController.h"
 #include "S1PlayerController.generated.h"
 
+/** foward declarations */
+class AS1PlayerState;
+class US1AbilitySystemComponent;
+
 UCLASS()
-class S1_API AS1PlayerController : public AModularPlayerController
+class S1_API AS1PlayerController : public ACommonPlayerController
 {
     GENERATED_BODY()
 
 public:
     AS1PlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    /*
+     * PlayerController`s Interface
+     */
+    virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
+
+    /*
+     * member methods
+     */
+    AS1PlayerState* GetS1PlayerState() const;
+    US1AbilitySystemComponent* GetS1AbilitySystemComponent() const;
 
 }; 

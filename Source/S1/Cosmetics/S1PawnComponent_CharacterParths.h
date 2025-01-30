@@ -73,9 +73,11 @@ class S1_API US1PawnComponent_CharacterParths : public UPawnComponent
 public:
     US1PawnComponent_CharacterParths(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
     
+    UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Cosmetics")
+    FGameplayTagContainer GetCombinedTags(FGameplayTag RequiredPrefix) const;
+
     FS1CharacterPartHandle AddCharacterPart(const FS1CharacterPart& NewPart);
     void BroadcastChanged();
-    FGameplayTagContainer GetCombinedTags(FGameplayTag RequiredPrefix) const;
     USceneComponent* GetSceneComponentToAttachTo() const;
     USkeletalMeshComponent* GetParentMeshComponent() const;
 

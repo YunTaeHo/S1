@@ -9,6 +9,7 @@
 
 /** 전방 선언 */
 class US1PawnData;
+class US1AbilitySystemComponent;
 
 /*
  * 기본적인 초기화를 다루는 Component
@@ -22,19 +23,21 @@ public:
     US1PawnHandler(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	static const FName NAME_ActorFeatureName;
+	
 
-
-	static US1PawnHandler* FindPawnHandler(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<US1PawnHandler>() : nullptr); }
 
 
 	/*
 	 * member methods
 	 */
+	static US1PawnHandler* FindPawnHandler(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<US1PawnHandler>() : nullptr); }
 	template<class T>
 	const T* GetPawnData() const { return Cast<T>(PawnData); }
 	void SetPawnData(const US1PawnData* InPawnData);
 	void ForceUpdateInitState();
-
+	void InitializeAbilitySystem(US1AbilitySystemComponent* InASC, AActor* InOwnerActor);
+	void UninitializeAbilitySystem();
+	US1AbilitySystemComponent* GetS1AbilitySystemComponent() const { return AbilitySystemComponent; }
 
 	/*
 	 * UPawnComponent methods
@@ -54,5 +57,9 @@ public:
 	/** Pawn을 생성한 데이터를 캐싱 */
 	UPROPERTY(EditInstanceOnly, Category = "S1|Pawn")
 	TObjectPtr<const US1PawnData> PawnData;
+
+	/** AbilitySystemComponent 캐싱 */
+	UPROPERTY()
+	US1AbilitySystemComponent* AbilitySystemComponent;
 
 }; 

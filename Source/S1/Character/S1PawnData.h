@@ -8,6 +8,9 @@
 #include "Input/S1InputConfig.h"
 #include "S1PawnData.generated.h"
 
+/** forward declarations */
+class US1AbilitySet;
+
 UCLASS()
 class S1_API US1PawnData : public UPrimaryDataAsset
 {
@@ -29,5 +32,9 @@ public:
     /** Input Config는 컨트롤러가 Possess한 플레이어가 사용하게 된다 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|InputConfig")
     TObjectPtr<US1InputConfig> InputConfig;
+
+    /** 해당 Pawn의 Ability System에 허용할 AbilitySet */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|Abilities")
+    TArray<TObjectPtr<US1AbilitySet>> AbilitySets;
 
 }; 

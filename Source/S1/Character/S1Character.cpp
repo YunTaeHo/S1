@@ -4,6 +4,7 @@
 #include "S1Character.h"
 #include "S1PawnHandler.h"
 #include "Camera/S1CameraComponent.h"
+#include "AbilitySystemComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1Character)
 
 AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
@@ -28,4 +29,10 @@ void AS1Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	// Pawn이 Possess가 되었기 때문에 Controller와 PlayerState 정보 접근이 가능한 상태
 	PawnHandlerComponent->ForceUpdateInitState();
+}
+
+UAbilitySystemComponent* AS1Character::GetAbilitySystemComponent() const
+{
+	// 캐싱되어있는 ASC를 가져와서 return 해준다
+	return PawnHandlerComponent->GetS1AbilitySystemComponent();
 }

@@ -4,6 +4,7 @@
 #include "S1PawnHandler.h"
 #include "S1LogChannel.h"
 #include "S1GameplayTags.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PawnHandler)
 
@@ -37,8 +38,39 @@ void US1PawnHandler::ForceUpdateInitState()
 {
     // ForceUpdate로 다시 InitState 상태 변환 시작 (연결 고리)
     CheckDefaultInitialization();
+}
 
-    
+void US1PawnHandler::InitializeAbilitySystem(US1AbilitySystemComponent* InASC, AActor* InOwnerActor)
+{
+    check(InASC && InOwnerActor);
+
+    if (AbilitySystemComponent == InASC)
+    {
+        return;
+    }
+
+    if (AbilitySystemComponent)
+    {
+        UninitializeAbilitySystem();
+    }
+
+    APawn* Pawn = GetPawnChecked<APawn>();
+    AActor* ExistingAvatar = InASC->GetAvatarActor();
+    check(!ExistingAvatar);
+
+    // ASC를 업데이트하고, InitAbilityActorInfo를 Pawn과 같이 호출하여, AvatarActor를 Pawn으로 업데이트 해준다
+    AbilitySystemComponent = InASC;
+    AbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, Pawn);
+}
+
+void US1PawnHandler::UninitializeAbilitySystem()
+{
+    if (!AbilitySystemComponent)
+    {
+        return;
+    }
+
+    AbilitySystemComponent = nullptr;
 }
 
 void US1PawnHandler::OnRegister()

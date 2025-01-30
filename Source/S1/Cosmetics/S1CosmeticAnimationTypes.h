@@ -6,6 +6,10 @@
 #include "GameplayTagContainer.h"
 #include "S1CosmeticAnimationTypes.generated.h"
 
+class UAnimInstance;
+class USkeletalMesh;
+class UPhysicsAsset;
+
 USTRUCT(BlueprintType)
 struct FS1AnimBodyStyleSelectionEntry
 {
@@ -46,4 +50,34 @@ struct FS1AnimBodyStyleSelectionSet
 
 };
 
+
+USTRUCT(BlueprintType)
+struct FS1AnimLayerSelectionEntry
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UAnimInstance> Layer = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGameplayTagContainer RequiredTags;
+};
+
+
+USTRUCT(BlueprintType)
+struct FS1AnimLayerSelectionSet
+{
+    GENERATED_BODY()
+
+    /** CosmeticTags 기반하여, 적절한 AnimLayer를 반환한다 */
+    TSubclassOf<UAnimInstance> SelectBestLayer(const FGameplayTagContainer& CosmeticTags) const;
+
+    /** FS1AnimBodyStyleSelectionSet가 같다 보면된다 */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<FS1AnimLayerSelectionEntry> LayerRules;
+
+    /** 디폴트 Layer */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UAnimInstance> DefaultLayer;
+};
 

@@ -20,13 +20,16 @@ public class S1 : ModuleRules
 			"UMG",
 			// GAS
 			"GameplayTags",
+			"GameplayTasks",
+			"GameplayAbilities",
 			// Game Features
 			"ModularGameplay",
             "GameFeatures",
+			"ModularGameplayActors",
 			// CommonUser
             "CommonUser",
-			// ModularGameplayActors
-			"ModularGameplayActors",
+			// CommonGame
+			"CommonGame",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
