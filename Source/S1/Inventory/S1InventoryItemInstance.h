@@ -14,7 +14,7 @@ class US1InventoryItemFragment;
 /*
  * 해당 클래스는 Inventory Item의 인스턴스로 볼 수 있다
  */
-UCLASS()
+UCLASS(BlueprintType)
 class S1_API US1InventoryItemInstance : public UObject
 {
     GENERATED_BODY()
@@ -22,6 +22,7 @@ class S1_API US1InventoryItemInstance : public UObject
 public:
     US1InventoryItemInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    UFUNCTION(BlueprintCallable, BlueprintPure = false, meta = (DeterminesOutputType = "FragmentClass"))
     const US1InventoryItemFragment* FindFragmentByClass(TSubclassOf<US1InventoryItemFragment> FragmentClass) const;
 
     template<typename ResultClass>

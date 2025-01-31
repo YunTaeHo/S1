@@ -20,6 +20,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Equipment")
     APawn* GetPawn() const;
+
+    UFUNCTION(BlueprintPure, Category = "Equipment")
+    UObject* GetInstigator() const { return Instigator; }
     
     /*
      * DeterminesOutputType은 C++ 정의에는 APawn*을 반환하지만, 

@@ -64,11 +64,22 @@ class S1_API US1EquipmentManagerComponent : public UPawnComponent
 public:
     US1EquipmentManagerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+
     US1EquipmentInstance* EquipItem(TSubclassOf<US1EquipmentDefinition> EquipmentDefinition);
     void UnequipItem(US1EquipmentInstance* ItemInstance);
 
     UFUNCTION(BlueprintCallable)
     TArray<US1EquipmentInstance*> GetEquipmentInstancesOfType(TSubclassOf<US1EquipmentInstance> InstanceType) const;
+
+    /** 장착물 중 처음 것을 반환 없으면 NULL */
+    US1EquipmentInstance* GetFirstInstanceOfType(TSubclassOf<US1EquipmentInstance> InstanceType);
+
+    template<typename T>
+    T* GetFirstInstanceOfType()
+    {
+        return (T*)GetFirstInstanceOfType(T::StaticClass());
+    }
+
 
     UPROPERTY()
     FS1EquipmentList EquipmentList;

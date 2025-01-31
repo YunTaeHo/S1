@@ -22,6 +22,9 @@ class COMMONGAME_API UGameUIManagerSubsystem : public UGameInstanceSubsystem
 public:
     UGameUIManagerSubsystem();
 
+    const UGameUIPolicy* GetCurrentUIPolicy() const { return CurrentPolicy; }
+    UGameUIPolicy* GetCurrentUIPolicy() { return CurrentPolicy; }
+
     /*
      * UGameInstanceSubsystem`s Interfaces
      */

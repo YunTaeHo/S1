@@ -131,4 +131,20 @@ TArray<US1EquipmentInstance*> US1EquipmentManagerComponent::GetEquipmentInstance
     return Results;
 }
 
+US1EquipmentInstance* US1EquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<US1EquipmentInstance> InstanceType)
+{
+    for (FS1AppliedEquipmentEntry& Entry : EquipmentList.Entries)
+    {
+        if (US1EquipmentInstance* Instance = Entry.Instance)
+        {
+            if (Instance->IsA(InstanceType))
+            {
+                return Instance;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
 

@@ -6,6 +6,12 @@
 #include "PrimaryGameLayout.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameUIPolicy)
 
+UPrimaryGameLayout* UGameUIPolicy::GetRootLayout(const UCommonLocalPlayer* LocalPlayer) const
+{
+	const FRootViewportLayoutInfo* LayoutInfo = RootViewportLayouts.FindByKey(LocalPlayer);
+	return LayoutInfo ? LayoutInfo->RootLayout : nullptr;
+}
+
 void UGameUIPolicy::NotifyPlayerAdded(UCommonLocalPlayer* LocalPlayer)
 {
 	// PC가 업데이트되면 GameLayout을 업데이트해주기 위해 Delegate를 추가해준다

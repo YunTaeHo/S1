@@ -45,10 +45,11 @@ class COMMONGAME_API UGameUIPolicy : public UObject
     GENERATED_BODY()
 
 public:
+    UPrimaryGameLayout* GetRootLayout(const UCommonLocalPlayer* LocalPlayer) const;
+
     void NotifyPlayerAdded(UCommonLocalPlayer* LocalPlayer);
     void NotifyPlayerRemoved(UCommonLocalPlayer* LocalPlayer);
     void NotifyPlayerDestroyed(UCommonLocalPlayer* LocalPlayer);
-
 
     /*
      * member methdos 

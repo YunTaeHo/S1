@@ -69,12 +69,25 @@ void US1ExperienceManagerComponent::StartExperienceLoad()
     //  - 위에서 CDO로 CurrentExperience를 받아온 이유가 이것이다
     BundleAssetList.Add(CurrentExperience->GetPrimaryAssetId());
 
+    // ExperienceActionSet을 순회하며, BundleAssetList를 추가해주자
+    for (const TObjectPtr<US1ExperienceActionSet>& ActionSet : CurrentExperience->ActionSets)
+    {
+        if (ActionSet)
+        {
+            // AS_Shooter_XXX 가 추가된다
+            // - BundleAssetList는 Bundle로 등록할 Root의 PrimaryDataAsset를 추가하는 과정이다
+            BundleAssetList.Add(ActionSet->GetPrimaryAssetId());
+        }
+    }
+
     // GameFeature를 사용하여, Expiernce에 바인딩된 GameFeautre Plugin을 로딩할 Bundle 이름을 추가한다
     TArray<FName> BundlesToLoad;
     {
         const ENetMode OwnerNetMode = GetOwner()->GetNetMode();
         bool bLoadClient = GIsEditor || (OwnerNetMode != NM_DedicatedServer);
         bool bLoadServer = GIsEditor || (OwnerNetMode != NM_Client);
+
+        // Client, Server로 쓸 Bundlee를 나눠준다
         if (bLoadClient)
         {
             BundlesToLoad.Add(UGameFeaturesSubsystemSettings::LoadStateClient);
@@ -210,7 +223,7 @@ void US1ExperienceManagerComponent::OnExperienceFullLoadComplete()
         ActivateListOfActions(CurrentExperience->Actions);
 
         // 2. Experience의 ActionSets
-        for (const TObjectPtr<US1ExperienceActionSet>& ActionSet : CurrentExperience->ActionSet)
+        for (const TObjectPtr<US1ExperienceActionSet>& ActionSet : CurrentExperience->ActionSets)
         {
             ActivateListOfActions(ActionSet->Actions);
         }

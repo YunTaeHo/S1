@@ -12,6 +12,7 @@
 #include "Character/S1PawnHandler.h"
 #include "S1LogChannel.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/S1HUD.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1GameModeBase)
 
 AS1GameModeBase::AS1GameModeBase(const FObjectInitializer& ObjectInitializer)
@@ -21,6 +22,7 @@ AS1GameModeBase::AS1GameModeBase(const FObjectInitializer& ObjectInitializer)
 	PlayerControllerClass = AS1PlayerController::StaticClass();
 	PlayerStateClass = AS1PlayerState::StaticClass();
 	DefaultPawnClass = AS1Character::StaticClass();
+	HUDClass = AS1HUD::StaticClass();
 
 }
 

@@ -17,6 +17,10 @@ class S1_API US1ExperienceActionSet : public UPrimaryDataAsset
 public:
     US1ExperienceActionSet();
 
+#if WITH_EDITORONLY_DATA
+    virtual void UpdateAssetBundleData() override;
+#endif
+
     /*
      * member variables
      */

@@ -16,12 +16,13 @@ class US1ExperienceDefinition : public UPrimaryDataAsset
 public: 
 	US1ExperienceDefinition(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	/*
-	 *	member variables
-	 */
+#if WITH_EDITORONLY_DATA
+	virtual void UpdateAssetBundleData() override;
+#endif
+
+	/** 기본 Pawn */
 	UPROPERTY(EditDefaultsOnly, Category=Gameplay)
 	TObjectPtr<US1PawnData> DefaultPawnData;
-
 
 	/*
 	 * 마킹 및 기억용으로 남겨둔다(GameFeature 로딩용)
@@ -31,7 +32,7 @@ public:
 
 	/** ExperienceActionSet은 UGameFeatureAcion의 Set이며, Gameplay 용도에 맞게 분류의 목적으로 사용한다 */
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	TArray<TObjectPtr<US1ExperienceActionSet>> ActionSet;
+	TArray<TObjectPtr<US1ExperienceActionSet>> ActionSets;
 
 	/** 일반적인 GameFeatureAction 추가*/
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Gameplay")
