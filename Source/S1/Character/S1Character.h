@@ -6,8 +6,10 @@
 #include "AbilitySystemInterface.h"
 #include "S1Character.generated.h"
 
+/** foward declarations */
 class US1PawnHandler;
 class US1CameraComponent;
+class US1HealthComponent;
 
 UCLASS()
 class S1_API AS1Character : public AModularCharacter, public IAbilitySystemInterface
@@ -17,6 +19,9 @@ class S1_API AS1Character : public AModularCharacter, public IAbilitySystemInter
 public:
 	// Sets default values for this character's properties
 	AS1Character(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	void OnAbilitySystemInitialized();
+	void OnAbilitySystemUninitialized();
 
 	/*
 	 * ACharacter`s Interface
@@ -33,5 +38,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
 	TObjectPtr<US1CameraComponent> CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
+	TObjectPtr<US1HealthComponent> HealthComponent;
 
 };

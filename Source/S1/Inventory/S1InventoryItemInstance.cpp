@@ -22,4 +22,24 @@ const US1InventoryItemFragment* US1InventoryItemInstance::FindFragmentByClass(TS
     return nullptr;
 }
 
+void US1InventoryItemInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
+{
+    StatTags.AddStack(Tag, StackCount);
+}
+
+void US1InventoryItemInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)
+{
+    StatTags.RemoveStack(Tag, StackCount);
+}
+
+bool US1InventoryItemInstance::HasStatTag(FGameplayTag Tag) const
+{
+    return StatTags.ContainsTag(Tag);
+}
+
+int32 US1InventoryItemInstance::GetStatTagStackCount(FGameplayTag Tag) const
+{
+    return StatTags.GetStackCount(Tag);
+}
+
 

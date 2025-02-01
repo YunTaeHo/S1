@@ -61,6 +61,9 @@ void US1PawnHandler::InitializeAbilitySystem(US1AbilitySystemComponent* InASC, A
     // ASC를 업데이트하고, InitAbilityActorInfo를 Pawn과 같이 호출하여, AvatarActor를 Pawn으로 업데이트 해준다
     AbilitySystemComponent = InASC;
     AbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, Pawn);
+
+    // OnAbilitySystemInitialized에 바인딩된 Delegate 호출
+    OnAbilitySystemInitialized.Broadcast();
 }
 
 void US1PawnHandler::UninitializeAbilitySystem()
@@ -68,6 +71,12 @@ void US1PawnHandler::UninitializeAbilitySystem()
     if (!AbilitySystemComponent)
     {
         return;
+    }
+
+    if (AbilitySystemComponent->GetAvatarActor() == GetOwner())
+    {
+        // OnAbilitySystemUninitialized에 바인딩된 Delegate 호출
+        OnAbilitySystemUninitialized.Broadcast();
     }
 
     AbilitySystemComponent = nullptr;
@@ -218,4 +227,27 @@ void US1PawnHandler::CheckDefaultInitialization()
     // 계속 상태가 가능할때까지 한번 업데이트 한다
     // 업데이트가 모두 완료되었다면, 내 상태로 자연스럽게 한 단계 올라간다(코드 참고, CurrentState)
     ContinueInitStateChain(StateChain);
+}
+
+void US1PawnHandler::OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate Delegate)
+{
+    // OnAbilitySystemInitialized에 UObject가 바인딩되어 있지 않으면 추가(Uniqueness)
+    if (!OnAbilitySystemInitialized.IsBoundToObject(Delegate.GetUObject()))
+    {
+        OnAbilitySystemInitialized.Add(Delegate);
+    }
+
+    // 이미 ASC가 설정되어있으면, Delegate에 추가하는게 아닌 바로 호출(이미 초기화 되어있기 때문)
+    if (AbilitySystemComponent)
+    {
+        Delegate.Execute();
+    }
+}
+
+void US1PawnHandler::OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate Delegate)
+{
+    if (!OnAbilitySystemUninitialized.IsBoundToObject(Delegate.GetUObject()))
+    {
+        OnAbilitySystemUninitialized.Add(Delegate);
+    }
 }

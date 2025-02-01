@@ -21,6 +21,7 @@ void US1ReticleWidgetBase::InitializeFromWeapon(US1WeaponInstance* InWeapon)
     {
         InventoryInstance = Cast<US1InventoryItemInstance>(WeaponInstance->GetInstigator());
     }
+    OnWeaponInitialized();
 }
 
 

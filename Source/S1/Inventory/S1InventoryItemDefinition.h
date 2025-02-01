@@ -6,6 +6,9 @@
 #include "UObject/Object.h"
 #include "S1InventoryItemDefinition.generated.h"
 
+/** foward declarations */
+class US1InventoryItemInstance;
+
 /*
  *  
  *  Component의 개념과 비슷하다고 볼 수 있다
@@ -18,6 +21,9 @@ UCLASS(Abstract, DefaultToInstanced, EditInlineNew)
 class S1_API US1InventoryItemFragment : public UObject
 {
     GENERATED_BODY()
+public:
+    /** ItemInstance가 US1InventoryManagerComponent의 InventoryList 에 추가 될 때 해당 함수를 호출한다 */
+    virtual void OnInstanceCreated(US1InventoryItemInstance* Instance) const {}
 };
 
 

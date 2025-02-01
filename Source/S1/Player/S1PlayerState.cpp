@@ -8,6 +8,8 @@
 #include "Character/S1PawnData.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "AbilitySystem/S1AbilitySet.h"
+#include "AbilitySystem/Attributes/S1CombatSet.h"
+#include "AbilitySystem/Attributes/S1HealthSet.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerState)
 
 // 기본 생성자
@@ -15,6 +17,11 @@ AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     AbilitySystemComponent = ObjectInitializer.CreateDefaultSubobject<US1AbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
+
+    // AbilitySystemComponent 내부에 자동적으로 캐싱을 수행한다
+    CreateDefaultSubobject<US1CombatSet>(TEXT("CombatSet"));
+    CreateDefaultSubobject<US1HealthSet>(TEXT("HealthSet"));
+
 }
 
 void AS1PlayerState::PostInitializeComponents()

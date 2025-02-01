@@ -4,7 +4,8 @@
 #include "S1Character.h"
 #include "S1PawnHandler.h"
 #include "Camera/S1CameraComponent.h"
-#include "AbilitySystemComponent.h"
+#include "S1HealthComponent.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1Character)
 
 AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
@@ -15,12 +16,34 @@ AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
 
 	//S1PawnHandler 설정
 	PawnHandlerComponent = CreateDefaultSubobject<US1PawnHandler>(TEXT("PawnHandler"));
+	{
+		PawnHandlerComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
+		PawnHandlerComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
+	}
 
 	// CameraComponent 생성
 	{
 		CameraComponent = CreateDefaultSubobject<US1CameraComponent>(TEXT("CameraComponent"));
 		CameraComponent->SetRelativeLocation(FVector(-300.0, 0.0, 75.0));
 	}
+	// HealthComponent 생성
+	{
+		HealthComponent = CreateDefaultSubobject<US1HealthComponent>(TEXT("HealthComponent"));
+	}
+}
+
+void AS1Character::OnAbilitySystemInitialized()
+{
+	US1AbilitySystemComponent* S1ASC = Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent());
+	check(S1ASC);
+
+	// HealthComponent의 ASC를 통한 초기화
+	HealthComponent->InitializeWithAbilitySystem(S1ASC);
+}
+
+void AS1Character::OnAbilitySystemUninitialized()
+{
+	HealthComponent->UnInitializeWithAbilitySystem();
 }
 
 void AS1Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

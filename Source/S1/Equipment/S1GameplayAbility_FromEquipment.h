@@ -9,6 +9,7 @@
 
 /** foward declarations */
 class US1EquipmentInstance;
+class US1InventoryItemInstance;
 
 UCLASS()
 class S1_API US1GameplayAbility_FromEquipment : public US1GameplayAbility
@@ -19,4 +20,5 @@ public:
     US1GameplayAbility_FromEquipment(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     US1EquipmentInstance* GetAssociatedEquipment() const;
+    US1InventoryItemInstance* GetAssociatedItem() const;
 }; 

@@ -27,6 +27,16 @@ US1InventoryItemInstance* FS1InventoryList::AddEntry(TSubclassOf<US1InventoryIte
     NewEntry.Instance = NewObject<US1InventoryItemInstance>(OwningActor);
     NewEntry.Instance->ItemDef = ItemDef;
 
+    // Fragments를 순회하며(반복자)
+    for (US1InventoryItemFragment* Fragment : GetDefault<US1InventoryItemDefinition>(ItemDef)->Fragments)
+    {
+        if (Fragment)
+        {
+            // OnInstanceCreated에 Instance된 객체를 인자로 넣어준다
+            Fragment->OnInstanceCreated(NewEntry.Instance);
+        }
+    }
+
     Result = NewEntry.Instance;
     return Result;
 }

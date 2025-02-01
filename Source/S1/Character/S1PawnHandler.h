@@ -23,9 +23,6 @@ public:
     US1PawnHandler(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	static const FName NAME_ActorFeatureName;
-	
-
-
 
 	/*
 	 * member methods
@@ -54,6 +51,10 @@ public:
 	virtual bool CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const final;
 	virtual void CheckDefaultInitialization() final;
 
+	/** OnAbilitySystem[Initialized|Uninitialized] Delegate에 추가 */
+	void OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate Delegate);
+	void OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate Delegate);
+
 	/** Pawn을 생성한 데이터를 캐싱 */
 	UPROPERTY(EditInstanceOnly, Category = "S1|Pawn")
 	TObjectPtr<const US1PawnData> PawnData;
@@ -61,5 +62,9 @@ public:
 	/** AbilitySystemComponent 캐싱 */
 	UPROPERTY()
 	US1AbilitySystemComponent* AbilitySystemComponent;
+
+	/** ASC Init과 UnInit의 Delegate 추가 */
+	FSimpleMulticastDelegate OnAbilitySystemInitialized;
+	FSimpleMulticastDelegate OnAbilitySystemUninitialized;
 
 }; 

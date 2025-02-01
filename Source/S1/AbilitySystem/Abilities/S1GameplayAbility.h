@@ -6,6 +6,9 @@
 #include "Abilities/GameplayAbility.h"
 #include "S1GameplayAbility.generated.h"
 
+/** foward declarations */
+class US1AbilityCost;
+
 UENUM(BlueprintType)
 enum class ES1AbilityActivationPolicy : uint8
 {
@@ -25,7 +28,19 @@ class S1_API US1GameplayAbility : public UGameplayAbility
 public:
     US1GameplayAbility(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
     
+    /*
+     * UGameplayAbility`s Interface 
+     */
+    virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+    virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
+
     /** GA 활성화 정책(언제 활성화 될지?) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|AbilityActivation")
     ES1AbilityActivationPolicy ActivationPolicy;
+
+    /** GameplayAbility가 Ability Cost를 사용해 Cost 관리 할 수 있도록 배열로 설정 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "S1|AbilityActivation")
+    TArray<TObjectPtr<US1AbilityCost>> AdditionalCosts;
+
 }; 
