@@ -15,6 +15,7 @@ public class ModularGameplayActors : ModuleRules
 				"CoreUObject",
                 "Engine",
 				"ModularGameplay",
+                "AIModule",
             }
 			);
 	}

@@ -39,6 +39,9 @@ public class S1 : ModuleRules
 			// Slate
 			"Slate",
 			"SlateCore",
+			// AI
+			"AIModule",
+
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
