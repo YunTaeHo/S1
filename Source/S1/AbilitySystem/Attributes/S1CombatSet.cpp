@@ -7,6 +7,7 @@
 US1CombatSet::US1CombatSet()
     : Super()
     , BaseHeal(0.f)
+    , BaseDamage(0.f)
 {
 
 }

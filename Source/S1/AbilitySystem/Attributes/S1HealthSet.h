@@ -21,6 +21,7 @@ public:
     ATTRIBUTE_ACCESSORS(US1HealthSet, Health);
     ATTRIBUTE_ACCESSORS(US1HealthSet, MaxHealth);
     ATTRIBUTE_ACCESSORS(US1HealthSet, Healing);
+    ATTRIBUTE_ACCESSORS(US1HealthSet, Damage);
 
     /*
      * GameplayEffect가 HealSet에 Attribute를 수행하기 전에 불리는 콜백함수 :
@@ -48,6 +49,10 @@ public:
     /** 체력 회복치 */
     UPROPERTY(BlueprintReadOnly, Category = "S1|Health")
     FGameplayAttributeData Healing;
+
+    /** 받은 데미지 */
+    UPROPERTY(BlueprintReadOnly, Category = "S1|Health")
+    FGameplayAttributeData Damage;
 
 
 

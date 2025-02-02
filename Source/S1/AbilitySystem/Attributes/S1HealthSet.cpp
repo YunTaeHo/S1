@@ -10,6 +10,7 @@ US1HealthSet::US1HealthSet()
     : Super()
     , Health(50.f)
     , MaxHealth(100.f)
+    , Damage(0.f)
 {
 
 }
@@ -35,6 +36,12 @@ void US1HealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
     else if (Data.EvaluatedData.Attribute == GetHealthAttribute())
     {
         SetHealth(FMath::Clamp(GetHealth(), MinimumHealth, GetMaxHealth()));
+    }
+    // Damage 업데이트 경우, Damage를 Health에 적용하고, Damage를 초기화해준다
+    else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+    {
+        SetHealth(FMath::Clamp(GetHealth() - GetDamage(), MinimumHealth, GetMaxHealth()));
+        SetDamage(0.f);
     }
 }
 

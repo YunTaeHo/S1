@@ -30,6 +30,7 @@ public:
 	static US1PawnHandler* FindPawnHandler(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<US1PawnHandler>() : nullptr); }
 	template<class T>
 	const T* GetPawnData() const { return Cast<T>(PawnData); }
+	UFUNCTION(BlueprintCallable)
 	void SetPawnData(const US1PawnData* InPawnData);
 	void ForceUpdateInitState();
 	void InitializeAbilitySystem(US1AbilitySystemComponent* InASC, AActor* InOwnerActor);

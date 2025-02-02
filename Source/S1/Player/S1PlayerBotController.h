@@ -14,11 +14,16 @@ class S1_API AS1PlayerBotController : public AModularAIController
 public:
     AS1PlayerBotController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    virtual void PreInitializeComponents() override;
     virtual void OnUnPossess() override;
 
 protected:
     virtual void InitPlayerState() override;
     virtual void CleanupPlayerState() override;
+
+protected:
+    UPROPERTY(EditDefaultsOnly, Category = "S1|PlayerState")
+    TSubclassOf<AS1BotPlayerState> PlayerStateClassToSpawn;
 
 private:
     UPROPERTY()

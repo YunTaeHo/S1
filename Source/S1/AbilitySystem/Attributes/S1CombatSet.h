@@ -15,6 +15,7 @@ public:
     US1CombatSet();
 
     ATTRIBUTE_ACCESSORS(US1CombatSet, BaseHeal);
+    ATTRIBUTE_ACCESSORS(US1CombatSet, BaseDamage);
 
     /*
      * FGameplayAttribute가 참고하는 실제 AttributeSet에 있는 데이터이다
