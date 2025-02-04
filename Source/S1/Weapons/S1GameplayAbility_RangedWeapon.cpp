@@ -250,22 +250,14 @@ FHitResult US1GameplayAbility_RangedWeapon::WeaponTrace(const FVector& StartTrac
                     return Other.HitObjectHandle == CurHitResult.HitObjectHandle;
                 };
 
-            if (!OutHitResults.ContainsByPredicate(Pred) && TEXT("CollisionCylinder") != CurHitResult.Component.Get()->GetName())
+            if (!OutHitResults.ContainsByPredicate(Pred))
             {
                 OutHitResults.Add(CurHitResult);
             }
         }
 
-        if (OutHitResults.IsEmpty())
-        {
-            Hit.TraceStart = StartTrace;
-            Hit.TraceEnd = EndTrace;
-        }
-        else
-        {
-            // Hit의 가장 마지막 값을 Impact로 저장 
-            Hit = OutHitResults.Last();
-        }
+        // Hit의 가장 마지막 값을 Impact로 저장 
+        Hit = OutHitResults.Last();
     }
     else
     {
