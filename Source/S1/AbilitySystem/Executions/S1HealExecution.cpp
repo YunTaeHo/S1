@@ -49,8 +49,10 @@ void US1HealExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(HealStatics().BaseHealDef, EvaluateParameters, BaseHeal);
 	}
 
+	const float HealtheBuff = Spec.GetLevel();
+
 	// RelevantAttributesToCapture를 통해 최종 계산된 BaseHeal을 0.0이하가 되지 않도록 한다
-	const float HealingDone = FMath::Max(0.f, BaseHeal);
+	const float HealingDone = FMath::Max(0.f, BaseHeal + HealtheBuff);
 	if (HealingDone > 0.f)
 	{
 		// GameplayEffectCalculation 이후, Modifier로서 추가한다 : 
