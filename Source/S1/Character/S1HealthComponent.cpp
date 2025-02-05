@@ -43,6 +43,7 @@ float US1HealthComponent::GetMaxHealth() const
     return (HealthSet ? HealthSet->GetMaxHealth() : 0);
 }
 
+PRAGMA_DISABLE_OPTIMIZATION
 float US1HealthComponent::GetHealthNormalized()
 {
     if (HealthSet)
@@ -54,6 +55,7 @@ float US1HealthComponent::GetHealthNormalized()
 
     return 0.0f;
 }
+PRAGMA_ENABLE_OPTIMIZATION
 
 void US1HealthComponent::InitializeWithAbilitySystem(US1AbilitySystemComponent* InASC)
 {

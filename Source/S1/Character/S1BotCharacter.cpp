@@ -25,6 +25,8 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 void AS1BotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HealthComponent->InitializeWithAbilitySystem(Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent()));
 }
 
 
