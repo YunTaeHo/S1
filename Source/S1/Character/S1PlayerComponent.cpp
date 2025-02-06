@@ -15,6 +15,7 @@
 #include "Input/S1InputComponent.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Character/S1PawnData.h"
+#include "GameFramework/Character.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
 
 /** FeatureName 정의 : static member variable 초기화 */
@@ -261,6 +262,7 @@ void US1PlayerComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
                     }
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Jump, ETriggerEvent::Triggered, this, &ThisClass::Input_Jump, false);
                 }
             }
         }
@@ -320,6 +322,15 @@ void US1PlayerComponent::Input_LookMouse(const FInputActionValue& InputActionVal
         double AimInversionValue = -Value.Y;
         Pawn->AddControllerPitchInput(AimInversionValue);
     }
+}
+
+void US1PlayerComponent::Input_Jump(const FInputActionValue& InputActionValue)
+{
+    if (ACharacter* Character = GetPawn<ACharacter>())
+    {
+        Character->Jump();
+    }
+    
 }
 
 void US1PlayerComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
