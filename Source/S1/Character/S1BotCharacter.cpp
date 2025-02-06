@@ -7,6 +7,7 @@
 #include "Player/S1BotPlayerState.h"
 #include "Bot/Controller/S1BotController.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
@@ -39,9 +40,22 @@ void AS1BotCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	// Enemy의 Widget을 추가해주도록 하자
 	if (HeathBarWidget)
 	{
 		//Widget->SetWidget(CreateWidget<UUserWidget>(this, HeathBarWidget));
+	}
+
+	// 순회하면서, GiveAbility를 수행한다
+	for (const TSubclassOf<US1GameplayAbility> GA : GameplayAbilityFactory)
+	{
+		US1GameplayAbility* AbilityCDO = GA->GetDefaultObject<US1GameplayAbility>();
+		UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+		check(ASC);
+
+
+		FGameplayAbilitySpec AbilitySpec(AbilityCDO);
+		const FGameplayAbilitySpecHandle AbilitySpecHandle = ASC->GiveAbility(AbilityCDO);
 	}
 }
 

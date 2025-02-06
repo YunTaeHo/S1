@@ -42,7 +42,14 @@ void AS1BotController::OnPossess(APawn* InPawn)
 		check(BTAsset);
 
 		RunBehaviorTree(BTAsset);
-		SetStateAsPassive();
+
+		FTimerHandle Handle;
+		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([this]() {
+			Blackboard->SetValueAsObject(TargetEnemyKeyName, GetWorld()->GetFirstPlayerController()->GetPawn());
+		}), 2.f, false);
+
+		
+		//SetStateAsPassive();
 
 		if (IBoInterface* BotInterface = Cast<IBoInterface>(Bot))
 		{

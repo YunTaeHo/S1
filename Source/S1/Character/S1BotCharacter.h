@@ -14,6 +14,7 @@ class US1HealthComponent;
 class UAbilitySystemComponent;
 class UBehaviorTree;
 class UWidgetComponent;
+class US1GameplayAbility;
 
 UCLASS()
 class S1_API AS1BotCharacter : public AModularCharacter, public IAbilitySystemInterface, public IBoInterface
@@ -71,4 +72,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "S1|Widget")
 	TSubclassOf<UUserWidget> HeathBarWidget;
+
+	UPROPERTY(EditAnywhere, Category = "S1|Character")
+	TArray<TSubclassOf<US1GameplayAbility>> GameplayAbilityFactory;
 }; 
