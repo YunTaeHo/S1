@@ -6,7 +6,7 @@
 #include "S1AttributeSet.h"
 #include "S1CombatSet.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class S1_API US1CombatSet : public US1AttributeSet
 {
     GENERATED_BODY()

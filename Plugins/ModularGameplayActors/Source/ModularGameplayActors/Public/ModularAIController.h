@@ -4,6 +4,7 @@
 #pragma once
 
 #include "AIController.h"
+#include "Navigation/CrowdFollowingComponent.h"
 #include "ModularAIController.generated.h"
 
 class UObject;
@@ -14,6 +15,7 @@ class MODULARGAMEPLAYACTORS_API AModularAIController : public AAIController
     GENERATED_BODY()
 
 public:
+    AModularAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     /** AAIController`s Interfaces */
     virtual void PreInitializeComponents() override;

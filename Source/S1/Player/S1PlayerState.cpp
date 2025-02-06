@@ -10,6 +10,7 @@
 #include "AbilitySystem/S1AbilitySet.h"
 #include "AbilitySystem/Attributes/S1CombatSet.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
+#include "AbilitySystem/Attributes/S1ManaSet.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerState)
 
 // 기본 생성자
@@ -21,6 +22,8 @@ AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
     // AbilitySystemComponent 내부에 자동적으로 캐싱을 수행한다
     CreateDefaultSubobject<US1CombatSet>(TEXT("CombatSet"));
     CreateDefaultSubobject<US1HealthSet>(TEXT("HealthSet"));
+    ManaSet = CreateDefaultSubobject<US1ManaSet>(TEXT("ManahSet"));
+    
 
 }
 

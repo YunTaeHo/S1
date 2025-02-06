@@ -35,4 +35,7 @@ public:
 
     UPROPERTY(VisibleAnywhere, Category = "S1|PlayerState")
     TObjectPtr<US1AbilitySystemComponent> AbilitySystemComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "S1|GAS", meta = (AllowPrivateAccess = "true"))
+    const class US1ManaSet* ManaSet;
 }; 

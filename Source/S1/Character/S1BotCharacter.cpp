@@ -5,8 +5,12 @@
 #include "S1LogChannel.h"
 #include "S1HealthComponent.h"
 #include "Player/S1BotPlayerState.h"
-#include "Player/S1PlayerBotController.h"
+#include "Bot/Controller/S1BotController.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/S1HealthSet.h"
+#include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1BotCharacter)
 
 AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
@@ -15,11 +19,13 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
+	// Widget(3D) 생성
+	Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
+
 	// HealthComponent 생성
 	{
 		HealthComponent = CreateDefaultSubobject<US1HealthComponent>(TEXT("HealthComponent"));
 	}
-
 }
 
 void AS1BotCharacter::BeginPlay()
@@ -29,11 +35,20 @@ void AS1BotCharacter::BeginPlay()
 	HealthComponent->InitializeWithAbilitySystem(Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent()));
 }
 
+void AS1BotCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (HeathBarWidget)
+	{
+		//Widget->SetWidget(CreateWidget<UUserWidget>(this, HeathBarWidget));
+	}
+}
 
 UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 {
 	// 캐싱되어있는 ASC를 가져와서 return 해준다
-	AS1PlayerBotController* AIC = Cast<AS1PlayerBotController>(GetController());
+	AS1BotController* AIC = Cast<AS1BotController>(GetController());
 	//check(AIC);
 
 	if (!AIC)
@@ -53,3 +68,77 @@ UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 	return PS->GetS1AbilitySystemComponent();
 }
 
+void AS1BotCharacter::GetPatrolRoute()
+{
+}
+
+void AS1BotCharacter::SetMovementSpeed()
+{
+}
+
+FIdealRange AS1BotCharacter::GetIdealRange()
+{
+	return FIdealRange();
+}
+
+void AS1BotCharacter::EquipWeapon()
+{
+}
+
+void AS1BotCharacter::UnequipWeapon()
+{
+}
+
+void AS1BotCharacter::Attack()
+{
+}
+
+
+void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	check(ASC);
+
+	if (DamageEffect)
+	{
+		FGameplayEffectContextHandle EffectContext;
+		ASC->BP_ApplyGameplayEffectToSelf(DamageEffect, Damage, EffectContext);
+		AS1BotController* BotController = Cast<AS1BotController>(GetController());
+
+		check(BotController);
+
+		BotController->SetStateAsFrozen();
+
+		// ASC에서 HealthSet을 가져와 Hp를 가져온다
+		const US1HealthSet* HealthSet = ASC->GetSet<US1HealthSet>();
+		float CurHp = HealthSet->GetHealth();
+
+		if (CurHp > 0.f)
+		{
+			//GetMesh()->GetAnimInstance()->Montage_Play();
+			BotController->SetStateAsAttacking(DamageCursor);
+		}
+		else
+		{
+			Die();
+		}
+	}
+
+
+}
+
+void AS1BotCharacter::JumpToDestination(FVector Location)
+{
+	FVector NewLocation = Location;
+	NewLocation.Z += ZVelocity;
+
+	FVector OutLaunchVelocity;
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutLaunchVelocity, GetActorLocation(), NewLocation);
+
+	LaunchCharacter(OutLaunchVelocity, true, true);
+}
+
+void AS1BotCharacter::Die()
+{
+
+}
