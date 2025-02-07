@@ -8,6 +8,9 @@
 #include "Bot/BoInterface.h"
 #include "S1BotCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEnded);
+
+
 /** foward declarations */
 class US1PawnHandler;
 class US1HealthComponent;
@@ -15,9 +18,27 @@ class UAbilitySystemComponent;
 class UBehaviorTree;
 class UWidgetComponent;
 class US1GameplayAbility;
+class UAnimMontage;
+
+
+USTRUCT(BlueprintType)
+struct FIdealRange
+{
+	GENERATED_BODY()
+
+	FIdealRange() 
+		: AttackRadius(600.f)
+		, DefendRadius(600.f)
+	{}
+
+	UPROPERTY(EditAnywhere)
+	float AttackRadius;
+	UPROPERTY(EditAnywhere)
+	float DefendRadius;
+};
 
 UCLASS()
-class S1_API AS1BotCharacter : public AModularCharacter, public IAbilitySystemInterface, public IBoInterface
+class S1_API AS1BotCharacter : public AModularCharacter, public IAbilitySystemInterface
 {
     GENERATED_BODY()
 
@@ -31,17 +52,29 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 
+/** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
 public:
-	/** IBoInterface`s Interface */
-	virtual void GetPatrolRoute() override;
-	virtual void SetMovementSpeed() override;
-	virtual FIdealRange GetIdealRange() override;
-	virtual void EquipWeapon() override;
-	virtual void UnequipWeapon() override;
-	virtual void Attack() override;
-	virtual void DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor) override;
-	virtual void JumpToDestination(FVector Location) override;
-	virtual void Die() override;
+	UFUNCTION(BlueprintCallable)
+	virtual void GetPatrolRoute() {}
+	UFUNCTION(BlueprintCallable)
+	virtual void SetMovementSpeed() {}
+	UFUNCTION(BlueprintCallable)
+	virtual void DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor);
+	UFUNCTION(BlueprintCallable)
+	virtual void JumpToDestination(FVector Location);
+	UFUNCTION(BlueprintCallable)
+	virtual void Die() {}
+
+	/*
+	 * 각자 공격을 Blueprint에서 함수를 여러 개 묶어서 사용할 수 있도록 설정 
+	 *  - Boss의 Attack Skill이 4개라면(블루프린트에서 4개를 어떻게 처리할 지 설정)
+	 *	- 각각의 보스 패턴들은 C++로 만들어 BlueprintCallable 하거나, 블루프린트로 구현
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void Attack();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttackEnded OnAttackEnded;
 
 	/*
 	 * IAbilitySystemInterface
@@ -50,29 +83,33 @@ public:
 
 public:
 	UBehaviorTree* GetBehaviorTree() const { return BTAsset; }
+	FIdealRange GetIdealRange() { return IdealRange; }
 
 protected:
-
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
     TObjectPtr<US1HealthComponent> HealthComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
-	TObjectPtr<UWidgetComponent> Widget;
 
 	/** Behavior Tree */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Behavior")
 	TObjectPtr<UBehaviorTree> BTAsset;
 
-	UPROPERTY(EditAnywhere, Category = "S1|Interface")
-	FIdealRange IdealRange;
 
-	/** Nav Link 사용 시 점프 Z Velocity 값 */
-	UPROPERTY(EditAnywhere, Category = "AI|Jump")
-	float ZVelocity = 250.f;
+
+// 이 둘은 나중에 보스랑 비교해야해서 따로 뺄 예정
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
+	TObjectPtr<UWidgetComponent> Widget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "S1|Widget")
 	TSubclassOf<UUserWidget> HeathBarWidget;
 
-	UPROPERTY(EditAnywhere, Category = "S1|Character")
-	TArray<TSubclassOf<US1GameplayAbility>> GameplayAbilityFactory;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "S1|Interface")
+	FIdealRange IdealRange;
+
+
+protected:
+	/** Nav Link 사용 시 점프 Z Velocity 값 */
+	UPROPERTY(EditAnywhere, Category = "AI|Jump")
+	float ZVelocity = 250.f;
 }; 

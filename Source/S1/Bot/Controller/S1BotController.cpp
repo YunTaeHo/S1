@@ -51,13 +51,10 @@ void AS1BotController::OnPossess(APawn* InPawn)
 		
 		//SetStateAsPassive();
 
-		if (IBoInterface* BotInterface = Cast<IBoInterface>(Bot))
-		{
-			FIdealRange IdealRange = BotInterface->GetIdealRange();
+		FIdealRange IdealRange = Bot->GetIdealRange();
 
-			Blackboard->SetValueAsFloat(AttackRadiusKeyName, IdealRange.AttackRadius);
-			Blackboard->SetValueAsFloat(DefendRadiusKeyName, IdealRange.DefendRadius);
-		}
+		Blackboard->SetValueAsFloat(AttackRadiusKeyName, IdealRange.AttackRadius);
+		Blackboard->SetValueAsFloat(DefendRadiusKeyName, IdealRange.DefendRadius);
 	}
 	else
 	{

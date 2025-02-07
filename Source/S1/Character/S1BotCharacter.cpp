@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "GameModes/AsyncAction_ExperienceReady.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1BotCharacter)
 
 AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
@@ -24,16 +25,12 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 	Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
 
 	// HealthComponent 생성
-	{
-		HealthComponent = CreateDefaultSubobject<US1HealthComponent>(TEXT("HealthComponent"));
-	}
+	HealthComponent = ObjectInitializer.CreateDefaultSubobject<US1HealthComponent>(this, TEXT("HealthComponent"));
 }
 
 void AS1BotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	HealthComponent->InitializeWithAbilitySystem(Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent()));
 }
 
 void AS1BotCharacter::PossessedBy(AController* NewController)
@@ -46,17 +43,9 @@ void AS1BotCharacter::PossessedBy(AController* NewController)
 		//Widget->SetWidget(CreateWidget<UUserWidget>(this, HeathBarWidget));
 	}
 
-	// 순회하면서, GiveAbility를 수행한다
-	for (const TSubclassOf<US1GameplayAbility> GA : GameplayAbilityFactory)
-	{
-		US1GameplayAbility* AbilityCDO = GA->GetDefaultObject<US1GameplayAbility>();
-		UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-		check(ASC);
-
-
-		FGameplayAbilitySpec AbilitySpec(AbilityCDO);
-		const FGameplayAbilitySpecHandle AbilitySpecHandle = ASC->GiveAbility(AbilityCDO);
-	}
+	US1AbilitySystemComponent* ASC = Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent());
+	check(ASC);
+	HealthComponent->InitializeWithAbilitySystem(ASC);
 }
 
 UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
@@ -81,32 +70,6 @@ UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 
 	return PS->GetS1AbilitySystemComponent();
 }
-
-void AS1BotCharacter::GetPatrolRoute()
-{
-}
-
-void AS1BotCharacter::SetMovementSpeed()
-{
-}
-
-FIdealRange AS1BotCharacter::GetIdealRange()
-{
-	return FIdealRange();
-}
-
-void AS1BotCharacter::EquipWeapon()
-{
-}
-
-void AS1BotCharacter::UnequipWeapon()
-{
-}
-
-void AS1BotCharacter::Attack()
-{
-}
-
 
 void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor)
 {
@@ -150,9 +113,4 @@ void AS1BotCharacter::JumpToDestination(FVector Location)
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutLaunchVelocity, GetActorLocation(), NewLocation);
 
 	LaunchCharacter(OutLaunchVelocity, true, true);
-}
-
-void AS1BotCharacter::Die()
-{
-
 }
