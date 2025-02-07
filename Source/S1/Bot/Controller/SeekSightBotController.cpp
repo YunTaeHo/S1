@@ -147,53 +147,6 @@ EAIState ASeekSightBotController::GetCurrentState() const
     return (EAIState)Blackboard->GetValueAsEnum(StateKeyName);
 }
 
-bool ASeekSightBotController::CanSenseActor(AActor* PerceptionActor, EAISense Sense, FAIStimulus& Stimulus)
-{
-    FActorPerceptionBlueprintInfo PerceptionInfo;
-
-    // 시물레이션 정보를 가져온다
-    AIPerception->GetActorsPerception(PerceptionActor, PerceptionInfo);
-
-    
-    TSubclassOf<UAISense> CurrentAISense;
-
-    // 들어온 Enum의 기준으로 CurrentAISense를 활성화한다.
-    switch (Sense)
-    {
-    case EAISense::Sight:
-        CurrentAISense = UAISense_Sight::StaticClass();
-        break;
-    case EAISense::Hearing:
-        CurrentAISense = UAISense_Hearing::StaticClass();
-        break;
-    case EAISense::Damage:
-        CurrentAISense = UAISense_Damage::StaticClass();
-        break;
-    case EAISense::None:
-    default:
-        break;
-    }
-
-
-    // 가져온 시뮬레이션 정보들을 순회하며
-    for (const FAIStimulus& AIStimulus : PerceptionInfo.LastSensedStimuli)
-    {
-        // 해당 시뮬레이션의 Sense 메타 데이터를 가져오고
-        TSubclassOf<UAISense> StimulusAISense = UAIPerceptionSystem::GetSenseClassForStimulus(this, AIStimulus);
-
-        // AISense가 해당 Sense라면?
-        if (CurrentAISense == StimulusAISense)
-        {
-            // 시뮬레이션에 대한 정보를 전달하고, true를 반환한다
-            Stimulus = AIStimulus;
-            return true;
-        }
-    }
-
-    // 아무 Sense도 발생하지 않았기 때문에 감지를 못하도록 막아주자
-    return false;
-}
-
 void ASeekSightBotController::HandleSensedSight(AActor* PerceptionActor)
 {
     // @TODO HORK 나중에 TeamID 값으로 따라 갈 수 있도록 설정(아마.. 페로몬 폭탄 같은 거에서 쓸 수 있을 듯?) 
@@ -267,18 +220,6 @@ void ASeekSightBotController::HandleSensedDamage(AActor* PerceptionActor)
     }
 }
 
-void ASeekSightBotController::HandleForgotActor(AActor* TargetActor)
-{
-    // Shight로 못찾은 Actor를 지워준다
-    KnownSeenActors.Remove(TargetActor);
-
-    // TargetEnemy가 지운 Actor라면? Passive 상태로 돌아간다
-    if (TargetActor == TargetEnemy)
-    {
-        SetStateAsPassive();
-    }
-}
-
 void ASeekSightBotController::HandleLostSight(AActor* TargetActor)
 {
     if (TargetActor == TargetEnemy)
@@ -302,6 +243,20 @@ void ASeekSightBotController::HandleLostSight(AActor* TargetActor)
     }
 }
 
+void ASeekSightBotController::HandleForgotActor(AActor* TargetActor)
+{
+    // Shight로 못찾은 Actor를 지워준다
+    KnownSeenActors.Remove(TargetActor);
+
+    // TargetEnemy가 지운 Actor라면? Passive 상태로 돌아간다
+    if (TargetActor == TargetEnemy)
+    {
+        SetStateAsPassive();
+    }
+}
+
+
+
 void ASeekSightBotController::SeekAttackTarget()
 {
     check(TargetEnemy);
@@ -321,7 +276,7 @@ void ASeekSightBotController::CheckForgettenSeenActor()
         {
             if (PerceivedActors.Find(SeenActor) == INDEX_NONE)
             {
-                HandleForgotActor(SeenActor);
+                //HandleForgotActor(SeenActor);
             }
         }
     }

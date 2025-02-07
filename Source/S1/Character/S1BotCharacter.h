@@ -6,6 +6,7 @@
 #include "ModularCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "Bot/BoInterface.h"
+#include "Misc/S1Container.h"
 #include "S1BotCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEnded);
@@ -19,6 +20,7 @@ class UBehaviorTree;
 class UWidgetComponent;
 class US1GameplayAbility;
 class UAnimMontage;
+class AS1PatrolRoute;
 
 
 USTRUCT(BlueprintType)
@@ -55,9 +57,7 @@ public:
 /** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void GetPatrolRoute() {}
-	UFUNCTION(BlueprintCallable)
-	virtual void SetMovementSpeed() {}
+	virtual void SetMovementSpeed(EMoveState MoveState) {}
 	UFUNCTION(BlueprintCallable)
 	virtual void DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor);
 	UFUNCTION(BlueprintCallable)
@@ -81,7 +81,15 @@ public:
 	 */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const final;
 
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "S1|Patrol")
+	TObjectPtr<AS1PatrolRoute> PatrolRoute;
+
 public:
+	UFUNCTION(BlueprintCallable)
+	AS1PatrolRoute* GetPatrolRoute() { return PatrolRoute; }
+
 	UBehaviorTree* GetBehaviorTree() const { return BTAsset; }
 	FIdealRange GetIdealRange() { return IdealRange; }
 

@@ -18,7 +18,7 @@ public:
     AS1EquipmentDefaultBot(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
-	virtual void SetMovementSpeed() override;
+	virtual void SetMovementSpeed(EMoveState MoveState) override;
 	
 
 /** Attack 관련 함수 */
@@ -36,10 +36,20 @@ public:
 	virtual void EquipWeapon();
 
 	UFUNCTION(BlueprintCallable)
-	void CallOnEquippedEnded();
+	void CallOnEquippedEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION(BlueprintCallable)
-	void CallOnUnequippedEnded();
+	void CallOnUnequippedEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+	void NotfiyOnEquippedWeapon(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+	UFUNCTION()
+	void NotfiyOnUnequippedWeapon(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+
+private:
+	void RemoveDelegates();
 
 /** Equip, Unequip 관련 변수 */
 protected:
@@ -49,17 +59,18 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
 	float EquippedMontagePlayRate = 1.f;
 
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
-	TSubclassOf<AActor> WeaponClass;
-
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
-	TObjectPtr<AActor> Weapon;
 
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
 	TObjectPtr<UAnimMontage> UnequippedMontage;
 
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
 	float UnequippedMontagePlayRate = 1.f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	TSubclassOf<AActor> WeaponClass;
+
+	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	TObjectPtr<AActor> Weapon;
 
 
 /** Attack 관련 변수 */

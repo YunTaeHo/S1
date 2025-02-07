@@ -33,9 +33,6 @@ public:
     virtual EAIState GetCurrentState() const override;
 
 public:
-    /** 센서 감지 함수, Update Perception 함수에서 사용*/
-    virtual bool CanSenseActor(AActor* PerceptionActor, EAISense Sense, FAIStimulus& Stimulus) override;
-
     virtual void HandleSensedSight(AActor* PerceptionActor) override;
     virtual void HandleSensedSound(FVector LocationAtSound) override;
     virtual void HandleSensedDamage(AActor* PerceptionActor) override;

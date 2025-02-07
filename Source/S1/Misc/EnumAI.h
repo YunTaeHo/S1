@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "EnumAI.generated.h"
 
@@ -25,7 +24,6 @@ enum class EAISense : uint8
     Hearing,
     Damage,
 };
-
 
 /**
  * 

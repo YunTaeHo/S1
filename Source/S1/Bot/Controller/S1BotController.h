@@ -11,6 +11,7 @@
 class UAIPerceptionComponent;
 class UBehaviorTree;
 class AS1BotPlayerState;
+class UAISenseConfig;
 struct FAIStimulus;
 
 
@@ -26,7 +27,6 @@ public:
     virtual void OnPossess(APawn* InPawn) override;
     virtual void OnUnPossess() override;
     virtual void ActorsPerceptionUpdated(const TArray<AActor*>& UpdatedActors) override;
-
 
 
 protected:
@@ -55,7 +55,8 @@ public:
 
 public:
     /** 센서 감지 함수, Update Perception 함수에서 사용*/
-    virtual bool CanSenseActor(AActor* PerceptionActor, EAISense Sense, FAIStimulus& Stimulus) { return false; }
+    /** @TODO HORK 이 부분 for문 3번이나 돌림..비효율적 나중에 수정하도록 하자 */
+    virtual bool CanSenseActor(AActor* PerceptionActor, EAISense Sense, FAIStimulus& Stimulus);
 
     virtual void HandleSensedSight(AActor* PerceptionActor) {}
     virtual void HandleSensedSound(FVector LocationAtSound) {}
@@ -104,6 +105,5 @@ protected:
 
     /** 테스트 */
     FTimerHandle CheckForgottenActosTimer;
-
 
 }; 

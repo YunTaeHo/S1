@@ -100,8 +100,6 @@ void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> D
 			Die();
 		}
 	}
-
-
 }
 
 void AS1BotCharacter::JumpToDestination(FVector Location)
