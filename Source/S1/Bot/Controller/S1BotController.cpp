@@ -43,14 +43,7 @@ void AS1BotController::OnPossess(APawn* InPawn)
 		UBehaviorTree* BTAsset = Bot->GetBehaviorTree();
 		check(BTAsset);
 
-		RunBehaviorTree(BTAsset);
-
-		FTimerHandle Handle;
-		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([this]() {
-			Blackboard->SetValueAsObject(TargetEnemyKeyName, GetWorld()->GetFirstPlayerController()->GetPawn());
-		}), 2.f, false);
-
-		
+		RunBehaviorTree(BTAsset);		
 		SetStateAsPassive();
 
 		FIdealRange IdealRange = Bot->GetIdealRange();

@@ -58,10 +58,11 @@ void US1AbilitySet::GiveToAbilitySystem(US1AbilitySystemComponent* S1ASC, FS1Abi
         // GiveAbility()에서 EGameplayAbilityInstanctingPolicy::InstancedPerActor라면, 
         //  - 내부적으로 Instance를 생성하지만, 그렇지 않으면 CDO를 할당한다
         // 이를 통해 UObject 갯수를 줄여 UObject로 인한 성능적/메모리적 부하를 줄일 수 있다
-        US1GameplayAbility* AbilityCDO = AbilityToGrant.Ability->GetDefaultObject<US1GameplayAbility>();
+        //US1GameplayAbility* AbilityCDO = AbilityToGrant.Ability->GetDefaultObject<US1GameplayAbility>();
 
         // AbilitySpec은 GiveAbility로 전달되어, ActivatableAbilties에 추가된다
-        FGameplayAbilitySpec AbilitySpec(AbilityCDO, AbilityToGrant.AbilityLevel);
+        FGameplayAbilitySpec AbilitySpec(AbilityToGrant.Ability, AbilityToGrant.AbilityLevel);
+        //FGameplayAbilitySpec AbilitySpec(AbilityCDO, AbilityToGrant.AbilityLevel);
         AbilitySpec.SourceObject = SourceObject;
         AbilitySpec.DynamicAbilityTags.AddTag(AbilityToGrant.InputTag);
 
