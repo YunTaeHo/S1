@@ -25,6 +25,11 @@ class S1_API US1PlayerComponent : public UPawnComponent, public IGameFrameworkIn
 public:
     US1PlayerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    /** Returns the S1 component if one exists on the specified actor. */
+    UFUNCTION(BlueprintPure, Category = "S1|Hero")
+    static US1PlayerComponent* FindHeroComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<US1PlayerComponent>() : nullptr); }
+
+
     /** FeatureName 정의 */
     static const FName NAME_ActorFeatureName;
     static const FName NAME_BindInputsNow;
@@ -57,9 +62,20 @@ public:
     void Input_AbilityInputTagReleased(FGameplayTag InputTag);
         
 
+    void SetAbilityCameraMode(TSubclassOf<US1CameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle);
+    void ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle);
+  
     /*
      *  member variables
      */
     UPROPERTY(EditAnywhere)
     TArray<FS1MappableConfigPair> DefaultInputConfig;
+
+    /** Camera mode set by an ability. */
+    UPROPERTY()
+    TSubclassOf<US1CameraMode> AbilityCameraMode;
+
+    /** Spec handle for the last ability to set a camera mode. */
+    FGameplayAbilitySpecHandle AbilityCameraModeOwningSpecHandle;
+
 }; 

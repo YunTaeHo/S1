@@ -8,6 +8,7 @@ class US1CameraComponent;
 /*
  *	[0,1]을 BlendFunction에 맞게 재매핑을 해주는 타입
  */
+UENUM(BlueprintType)
 enum class ES1CameraModeBlendFunction : uint8
 {
 	Linear,
@@ -24,7 +25,7 @@ struct FS1CameraModeView
 {
 	FS1CameraModeView();
 
-	void Blend(const FS1CameraModeView& Other, float OtherWeiget);
+	void Blend(const FS1CameraModeView& Other, float OtherWeight);
 
 	FVector Location;
 	FRotator Rotation;
@@ -43,6 +44,8 @@ public:
 
 	virtual void UpdateView(float DeltaTime);
 	virtual void UpdateBlending(float DeltaTime);
+
+	void SetBlendWeight(float Weight);
 
 	void UpdateCameraMode(float DeltaTime);
 
@@ -71,6 +74,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Blending")
 	float BlendTime;
 
+	/*
+	*	EaseIn/Out에 사용한 Exponent
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = "Blending")
+	float BlendExponent;
+
+	/** Blend function */
+	UPROPERTY(EditDefaultsOnly, Category = "Blending")
+	ES1CameraModeBlendFunction BlendFunction;
+
 	/** 선형적인 Blend 값 [0, 1] */
 	float BlendAlpha;
 
@@ -80,13 +93,11 @@ public:
 	 */
 	float BlendWeight;
 
-	/*
-	 *	EaseIn/Out에 사용한 Exponent
-	 */
-	float BlendExponent;
 
-	/** Blend function */
-	ES1CameraModeBlendFunction BlendFunction;
+protected:
+	/** If true, skips all interpolation and puts camera in ideal location.  Automatically set to false next frame. */
+	UPROPERTY(transient)
+	uint32 bResetInterpolation : 1;
 
 };
 

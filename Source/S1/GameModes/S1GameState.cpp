@@ -5,10 +5,9 @@
 #include "S1ExperienceManagerComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1GameState)
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 AS1GameState::AS1GameState(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     ExperienceManagerComponent = CreateDefaultSubobject<US1ExperienceManagerComponent>(TEXT("ExperienceManagerComponent"));
 }
-PRAGMA_ENABLE_OPTIMIZATION

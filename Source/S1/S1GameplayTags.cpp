@@ -29,6 +29,7 @@ void FS1GameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(InputTag_Move, "InputTag.Move", "");
 	AddTag(InputTag_Look_Mouse, "InputTag.Look.Mouse", "");
 	AddTag(InputTag_Jump, "InputTag.Jump", "");
+	AddTag(InputTag_Zoom, "InputTag.Zoom", "");
 }
 
 

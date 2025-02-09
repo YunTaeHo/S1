@@ -9,6 +9,9 @@
 #include "S1EquipmentDefinition.h"
 #include "S1EquipmentInstance.generated.h"
 
+/** foward declarations */
+class US1CameraMode;
+
 
 UCLASS(BlueprintType, Blueprintable)
 class S1_API US1EquipmentInstance : public UObject
@@ -59,4 +62,8 @@ public:
     /** S1EquipmentDefinition에 맞게 Spawn된 Actor Instances */
     UPROPERTY()
     TArray<TObjectPtr<AActor>> SpawnedActors;
+
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<US1CameraMode> ZoomMode;
+
 }; 

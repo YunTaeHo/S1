@@ -41,6 +41,8 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetSlotActivate(int32 SlotIndex);
 
+    TSubclassOf<US1CameraMode> GetZoomMode();
+
     /** HUD QuickBar Slot 개수 */
     UPROPERTY()
     int32 NumSlots = 3;
@@ -52,6 +54,7 @@ public:
     /** 현재 활성화된 Slot Index */
     UPROPERTY()
     int32 ActiveSlotIndex = -1;
+    
 
     /** 현재 장착한 장비 정보 */
     UPROPERTY()

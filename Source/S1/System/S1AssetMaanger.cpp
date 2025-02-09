@@ -34,7 +34,7 @@ void US1AssetMaanger::AddLoadedAsset(const UObject* Asset)
 	}
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 bool US1AssetMaanger::TestClone()
 {
 	static bool bTest = ShouldLogAssetLoads();
@@ -52,7 +52,6 @@ bool US1AssetMaanger::ShouldLogAssetLoads()
 	return bLogAssetLoads;
 }
 
-PRAGMA_ENABLE_OPTIMIZATION
 
 UObject* US1AssetMaanger::SynchronousLoadAsset( const FSoftObjectPath& AssetPath )
 {

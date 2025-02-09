@@ -4,6 +4,8 @@
 #include "S1GameplayAbility.h"
 #include "S1AbilityCost.h"
 #include "AbilitySystemComponent.h"
+#include "Character/S1PlayerComponent.h"
+#include "Player/S1PlayerController.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1GameplayAbility)
 
 US1GameplayAbility::US1GameplayAbility(const FObjectInitializer& ObjectInitializer)
@@ -52,27 +54,64 @@ void US1GameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, cons
     }
 }
 
-bool US1GameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+//PRAGMA_DISABLE_OPTIMIZATION
+//bool US1GameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+//{
+//    if (ActivationBlockedTags.Num() || ActivationRequiredTags.Num())
+//    {
+//        static FGameplayTagContainer AbilitySystemComponentTags;
+//        AbilitySystemComponentTags.Reset();
+//
+//        
+//        UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+//        ASC->GetOwnedGameplayTags(AbilitySystemComponentTags);
+//
+//        if (AbilitySystemComponentTags.HasAny(ActivationOwnedTags))
+//        {
+//            return false;
+//        }
+//
+//        if (!ActivationOwnedTags.HasAll(AbilitySystemComponentTags))
+//        {
+//            return false;
+//        }
+//    }
+//
+//    return true;
+//}
+//PRAGMA_ENABLE_OPTIMIZATION
+
+void US1GameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-    if (ActivationBlockedTags.Num() || ActivationRequiredTags.Num())
+    ClearCameraMode();
+
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+US1PlayerComponent* US1GameplayAbility::GetS1CharacterFromActorInfo() const
+{
+    return (CurrentActorInfo ? US1PlayerComponent::FindHeroComponent(CurrentActorInfo->AvatarActor.Get()) : nullptr);
+}
+
+void US1GameplayAbility::SetCameraMode(TSubclassOf<US1CameraMode> CameraMode)
+{
+    if (US1PlayerComponent* PlayerComponent = GetS1CharacterFromActorInfo())
     {
-        static FGameplayTagContainer AbilitySystemComponentTags;
-        AbilitySystemComponentTags.Reset();
-
-        
-        UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-        ASC->GetOwnedGameplayTags(AbilitySystemComponentTags);
-
-        if (ActivationOwnedTags.HasAny(ActivationBlockedTags))
-        {
-            return false;
-        }
-
-        if (!ActivationOwnedTags.HasAll(ActivationRequiredTags))
-        {
-            return false;
-        }
+        PlayerComponent->SetAbilityCameraMode(CameraMode, CurrentSpecHandle);
+        ActiveCameraMode = CameraMode;
     }
+}
 
-    return true;
+
+void US1GameplayAbility::ClearCameraMode()
+{
+    if (ActiveCameraMode)
+    {
+        if (US1PlayerComponent* PlayerComponent = GetS1CharacterFromActorInfo())
+        {
+            PlayerComponent->ClearAbilityCameraMode(CurrentSpecHandle);
+        }
+
+        ActiveCameraMode = nullptr;
+    }
 }

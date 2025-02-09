@@ -22,7 +22,7 @@ public:
 /** State 변경 함수 */
 public:
     virtual void SetStateAsPassive() override;
-    virtual void SetStateAsAttacking(AActor* TargetActor) override;
+    virtual void SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget) override;
     virtual void SetStateAsInvestigating(FVector Location) override;
     virtual void SetStateAsFrozen() override;
     virtual void SetStateAsSkeeing(FVector Location) override;

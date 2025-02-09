@@ -19,4 +19,11 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+public:
+    bool IsSuperArmored() const { return bSuperArmor; }
+
+protected:
+    UPROPERTY(BlueprintReadOnly, Category = "S1")
+    bool bSuperArmor = false;
+
 }; 

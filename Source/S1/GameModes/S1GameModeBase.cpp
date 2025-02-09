@@ -99,7 +99,6 @@ UClass* AS1GameModeBase::GetDefaultPawnClassForController_Implementation(AContro
 }
 
 // 해당 함수에서는 우리가 로딩할 Expierience에 대해 PrimaryAssetId를 생성하먀, OnMtachAssignmentGive으로 넘겨준다
-PRAGMA_DISABLE_OPTIMIZATION
 void AS1GameModeBase::HandleMatchAssignmentIfNoExpectingOne()
 {
 	FPrimaryAssetId ExperienceId;
@@ -130,7 +129,7 @@ void AS1GameModeBase::HandleMatchAssignmentIfNoExpectingOne()
 	check(ExperienceManagerComponent);
 	ExperienceManagerComponent->SetCurrentExperience(ExperienceId);
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
 
 bool AS1GameModeBase::IsExperienceLoaded() const
 {

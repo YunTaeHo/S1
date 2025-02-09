@@ -3,40 +3,53 @@
 
 #include "S1EquipmentDefaultBot.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/ClientUserWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1EquipmentDefaultBot)
 
 AS1EquipmentDefaultBot::AS1EquipmentDefaultBot(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-
+    // Widget(3D) 생성
+    Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
+    Widget->SetupAttachment(GetMesh());
 }
 
-void AS1EquipmentDefaultBot::SetMovementSpeed(EMoveState MoveState)
+void AS1EquipmentDefaultBot::BeginPlay()
 {
-    float Speed = 0.f;
+    Super::BeginPlay();
 
+    // Enemy의 Widget을 추가해주도록 하자
+    if (HeathBarWidget)
+    {
+        UClientUserWidget* WidgetTemp = CreateWidget<UClientUserWidget>(GetWorld(), HeathBarWidget);
+        WidgetTemp->SetOwner(this);
+     
+        Widget->SetWidget(WidgetTemp);
+    }
+}
+
+void AS1EquipmentDefaultBot::SetMovementSpeed(EMovementState MoveState)
+{
     switch (MoveState)
     {
-
-    case EMoveState::Walking:
-        Speed = 100.f;
+    case EMovementState::Idle:
+        GetCharacterMovement()->MaxWalkSpeed = MovementState.IdleSpeed;
         break;
-    case EMoveState::Jogging:
-        Speed = 300.f;
+    case EMovementState::Walking:
+        GetCharacterMovement()->MaxWalkSpeed = MovementState.WalkSpeed;
         break;
-    case EMoveState::Sprinting:
-        Speed = 500.f;
+    case EMovementState::Jogging:
+        GetCharacterMovement()->MaxWalkSpeed = MovementState.JogSpeed;
         break;
-
-    case EMoveState::Idle:
+    case EMovementState::Sprinting:
+        GetCharacterMovement()->MaxWalkSpeed = MovementState.SprintSpeed;
+        break;
     default:
         break;
     }
-
-    GetCharacterMovement()->MaxWalkSpeed = Speed;
 }
-
 
 void AS1EquipmentDefaultBot::CallOnAttackEnd()
 {

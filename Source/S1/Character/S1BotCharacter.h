@@ -17,7 +17,6 @@ class US1PawnHandler;
 class US1HealthComponent;
 class UAbilitySystemComponent;
 class UBehaviorTree;
-class UWidgetComponent;
 class US1GameplayAbility;
 class UAnimMontage;
 class AS1PatrolRoute;
@@ -50,20 +49,18 @@ public:
 	/*
 	 * ACharacter`s Interface
 	 */
-	virtual void BeginPlay() final;
+	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 
 
 /** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void SetMovementSpeed(EMoveState MoveState) {}
+	virtual void SetMovementSpeed(EMovementState MoveState) {}
 	UFUNCTION(BlueprintCallable)
-	virtual void DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor);
+	virtual void DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor = nullptr, EHitResponse HitResponse = EHitResponse::None);
 	UFUNCTION(BlueprintCallable)
 	virtual void JumpToDestination(FVector Location);
-	UFUNCTION(BlueprintCallable)
-	virtual void Die() {}
 
 	/*
 	 * 각자 공격을 Blueprint에서 함수를 여러 개 묶어서 사용할 수 있도록 설정 
@@ -72,6 +69,24 @@ public:
 	 */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void Attack();
+
+	/*
+	 * 각자 죽음에 대해 처리
+	 *	- Boos는 시네마틱을 처리할 수도 있음
+	 *  - 기본 몬스터는 바로 죽게 만들어줌
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void Die();
+
+	/*
+	 *	Hit 반응에 대해 처리
+	 *  - 슈퍼아머를 지니고 있는 캐릭터는 스턴이나 넉백에 반응하지 않음
+	 *	- 보스 캐릭터는 모두 상태에 대해 반응하지 않음
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void HitReact(EHitResponse HitResponse);
+
+
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackEnded OnAttackEnded;
@@ -93,6 +108,13 @@ public:
 	UBehaviorTree* GetBehaviorTree() const { return BTAsset; }
 	FIdealRange GetIdealRange() { return IdealRange; }
 
+	UFUNCTION(BlueprintCallable)
+	bool IsDead() { return bDead; }
+
+	/** 나중에 보스가 죽으면 모두 죽을 수 있도록 처리해야함. */
+	void SetDead(bool InDead) { bDead = InDead; }
+
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
     TObjectPtr<US1HealthComponent> HealthComponent;
@@ -102,22 +124,22 @@ protected:
 	TObjectPtr<UBehaviorTree> BTAsset;
 
 
-
-// 이 둘은 나중에 보스랑 비교해야해서 따로 뺄 예정
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
-	TObjectPtr<UWidgetComponent> Widget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "S1|Widget")
-	TSubclassOf<UUserWidget> HeathBarWidget;
-
-
 protected:
+	/** BT : 공격, 방어 탐지에 대한 변수 */
 	UPROPERTY(EditAnywhere, Category = "S1|Interface")
 	FIdealRange IdealRange;
+
+	/** 이동속도 관련 변수 (GetMovementSpeed 에서 사용) */
+	UPROPERTY(EditAnywhere, Category = "S1|Movement")
+	FMovementState MovementState;
 
 
 protected:
 	/** Nav Link 사용 시 점프 Z Velocity 값 */
-	UPROPERTY(EditAnywhere, Category = "AI|Jump")
+	UPROPERTY(EditAnywhere, Category = "S1|AI|Jump")
 	float ZVelocity = 250.f;
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "S1|Dead")
+	bool bDead;
 }; 

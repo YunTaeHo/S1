@@ -7,7 +7,7 @@
 #include "S1EquipmentDefinition.h"
 #include "Inventory/S1InventoryItemInstance.h"
 #include "Inventory/S1InventoryFragment_EquippableItem.h"
-
+#include "Camera/S1CameraMode.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1QuickBarComponent)
 
 US1QuickBarComponent::US1QuickBarComponent(const FObjectInitializer& ObjectInitializer)
@@ -113,6 +113,11 @@ void US1QuickBarComponent::SetSlotActivate(int32 SlotIndex)
         ActiveSlotIndex = SlotIndex;
         EquipItemSlot();
     }
+}
+
+TSubclassOf<US1CameraMode> US1QuickBarComponent::GetZoomMode()
+{
+    return EquippedItem->ZoomMode;
 }
 
 

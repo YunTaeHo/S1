@@ -185,7 +185,7 @@ void US1ExperienceManagerComponent::OnGameFeaturePluginLoadComplete(const UE::Ga
 }
 
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 void US1ExperienceManagerComponent::OnExperienceFullLoadComplete()
 {
     check(LoadState != ES1ExperienceLoadState::Loaded);
@@ -233,7 +233,7 @@ void US1ExperienceManagerComponent::OnExperienceFullLoadComplete()
     OnExperienceLoaded.Broadcast(CurrentExperience);
     OnExperienceLoaded.Clear();
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
 
 const US1ExperienceDefinition* US1ExperienceManagerComponent::GetCurrentExperienceChecked() const
 {

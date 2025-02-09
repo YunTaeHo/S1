@@ -38,7 +38,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "State")
     virtual void SetStateAsPassive() {};
     UFUNCTION(BlueprintCallable, Category = "State")
-    virtual void SetStateAsAttacking(AActor* TargetActor) {};
+    virtual void SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget) {};
     UFUNCTION(BlueprintCallable, Category = "State")
     virtual void SetStateAsInvestigating(FVector Location) {};
     UFUNCTION(BlueprintCallable, Category = "State")

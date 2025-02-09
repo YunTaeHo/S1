@@ -19,7 +19,7 @@ US1PawnHandler::US1PawnHandler(const FObjectInitializer& ObjectInitializer)
     PrimaryComponentTick.bCanEverTick = false;
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 void US1PawnHandler::SetPawnData(const US1PawnData* InPawnData)
 {
     // Pawn에 Authority가 없을 경우, SetPawnData는 진행하지 않음
@@ -102,7 +102,7 @@ void US1PawnHandler::OnRegister()
     // 디버깅을 위한 함수
     UGameFrameworkComponentManager* Manager = UGameFrameworkComponentManager::GetForActor(GetOwningActor());
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
 
 
 void US1PawnHandler::BeginPlay()
@@ -146,7 +146,7 @@ void US1PawnHandler::OnActorInitStateChanged(const FActorInitStateChangedParams&
     }
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 bool US1PawnHandler::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
 {
     check(Manager);
@@ -204,7 +204,7 @@ bool US1PawnHandler::CanChangeInitState(UGameFrameworkComponentManager* Manager,
 
     return false;
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
 
 /** ForceUpdate */
 void US1PawnHandler::CheckDefaultInitialization()

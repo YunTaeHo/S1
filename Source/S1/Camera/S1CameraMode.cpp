@@ -13,30 +13,30 @@ FS1CameraModeView::FS1CameraModeView()
 {
 }
 
-void FS1CameraModeView::Blend(const FS1CameraModeView& Other, float OtherWeiget)
+void FS1CameraModeView::Blend(const FS1CameraModeView& Other, float OtherWeight)
 {
-	if (OtherWeiget <= 0.f)
+	if (OtherWeight <= 0.f)
 	{
 		return;
 	}
-	else if (OtherWeiget >= 1.f)
+	else if (OtherWeight >= 1.f)
 	{
 		// Weight가 1.0이면 Other를 덮어쓰면 된다
 		*this = Other;
 		return;
 	}
 
-	// Location + OtherWeight * (Other.Location - Location)
-	Location = FMath::Lerp(Location, Other.Location, OtherWeiget);
+	// Location + OtherWeight OtherWeight * (Other.Location - Location)
+	Location = FMath::Lerp(Location, Other.Location, OtherWeight);
 
 	// Location과 같은 방식 Lerp(ControlRotation과 FieldOfView도 같음)
 	const FRotator DeltaRotation = (Other.Rotation - Rotation).GetNormalized();
-	Rotation = Rotation + (OtherWeiget * DeltaRotation);
+	Rotation = Rotation + (OtherWeight * DeltaRotation);
 
 	const FRotator DeltaControlRotation = (Other.ControlRotation - ControlRotation).GetNormalized();
-	ControlRotation = ControlRotation + (OtherWeiget * DeltaControlRotation);
+	ControlRotation = ControlRotation + (OtherWeight * DeltaControlRotation);
 
-	FieldOfView = FMath::Lerp(FieldOfView, Other.FieldOfView, OtherWeiget);
+	FieldOfView = FMath::Lerp(FieldOfView, Other.FieldOfView, OtherWeight);
 }
 
 
@@ -47,9 +47,11 @@ US1CameraMode::US1CameraMode(const FObjectInitializer& ObjectInitializer)
 	ViewPitchMin = S1_CAMERA_DEFAULT_PITCH_MIN;
 	ViewPitchMax = S1_CAMERA_DEFAULT_PITCH_MAX;
 
-	BlendTime = 0.f;
-	BlendAlpha = 1.f;
-	BlendWeight = 1.f;
+	BlendTime = 0.5f;
+	BlendFunction = ES1CameraModeBlendFunction::EaseOut;
+	BlendExponent = 4.0f;
+	BlendAlpha = 1.0f;
+	BlendWeight = 1.0f;
 }
 
 FVector US1CameraMode::GetPivotLocation()
@@ -106,10 +108,11 @@ AActor* US1CameraMode::GetTargetActor() const
 	return S1CameraComponent->GetTargetActor();
 }
 
-US1CameraComponent* US1CameraMode::GetS1CameraComponent() const
+void US1CameraMode::UpdateCameraMode(float DeltaTime)
 {
-	// CamerMode를 NewObject로 생성하면서 Outer를 US1CameraComponent로 넣어줘야지 캐스팅 가능
-	return CastChecked<US1CameraComponent>(GetOuter());
+	// Actor를 활용하여, Pivot[Location|Rotation]을 계산하여, View를 업데이트
+	UpdateView(DeltaTime);
+	UpdateBlending(DeltaTime);
 }
 
 // Character의 Location과 ControllerRotation을 활용하여, View를 업데이트
@@ -133,14 +136,46 @@ void US1CameraMode::UpdateView(float DeltaTime)
 
 }
 
+void US1CameraMode::SetBlendWeight(float Weight)
+{
+	BlendWeight = FMath::Clamp(Weight, 0.0f, 1.0f);
+
+	// Since we're setting the blend weight directly, we need to calculate the blend alpha to account for the blend function.
+	const float InvExponent = (BlendExponent > 0.0f) ? (1.0f / BlendExponent) : 1.0f;
+
+	switch (BlendFunction)
+	{
+	case ES1CameraModeBlendFunction::Linear:
+		BlendAlpha = BlendWeight;
+		break;
+
+	case ES1CameraModeBlendFunction::EaseIn:
+		BlendAlpha = FMath::InterpEaseIn(0.0f, 1.0f, BlendWeight, InvExponent);
+		break;
+
+	case ES1CameraModeBlendFunction::EaseOut:
+		BlendAlpha = FMath::InterpEaseOut(0.0f, 1.0f, BlendWeight, InvExponent);
+		break;
+
+	case ES1CameraModeBlendFunction::EaseInOut:
+		BlendAlpha = FMath::InterpEaseInOut(0.0f, 1.0f, BlendWeight, InvExponent);
+		break;
+
+	default:
+		checkf(false, TEXT("SetBlendWeight: Invalid BlendFunction [%d]\n"), (uint8)BlendFunction);
+		break;
+	}
+}
+
 void US1CameraMode::UpdateBlending(float DeltaTime)
 {
 	// BlendAlpha를 DeltaTime을 통해 계산
-	if (BlendAlpha > 0.f)
+	if (BlendTime > 0.f)
 	{
-		// DeltaTime을 활요앟여 진행도 누적
+		// DeltaTime을 활용하여 진행도 누적
 		// - 보가능ㄹ 몇 초 동안 해줄 것인가?
 		BlendAlpha += (DeltaTime / BlendTime);
+		BlendAlpha = FMath::Min(BlendAlpha, 1.0f);
 	}
 	else
 	{
@@ -170,45 +205,18 @@ void US1CameraMode::UpdateBlending(float DeltaTime)
 
 }
 
-void US1CameraMode::UpdateCameraMode(float DeltaTime)
+US1CameraComponent* US1CameraMode::GetS1CameraComponent() const
 {
-	// Actor를 활용하여, Pivot[Location|Rotation]을 계산하여, View를 업데이트
-	UpdateView(DeltaTime);
-
-
-	UpdateBlending(DeltaTime);
+	// CamerMode를 NewObject로 생성하면서 Outer를 US1CameraComponent로 넣어줘야지 캐스팅 가능
+	return CastChecked<US1CameraComponent>(GetOuter());
 }
-
-
 
 US1CameraModeStack::US1CameraModeStack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-US1CameraMode* US1CameraModeStack::GetCameraModeInstance(TSubclassOf<US1CameraMode>& CameraModeClass)
-{
-	check(CameraModeClass);
-
-	// CameraModeInstances에서 먼저 새엇왿어있는 지 체크 후 변환
-	for (US1CameraMode* CameraMode : CameraModeInstances)
-	{
-		// CameraMode는 UClass를 비교한다
-		// - 즉 CameraMode는 클래스 타입에 하나만 생기게된다
-		if ((CameraMode != nullptr) && (CameraMode->GetClass() == CameraModeClass))
-		{
-			return CameraMode;
-		}
-	}
-
-	US1CameraMode* NewCameraMode = NewObject<US1CameraMode>(GetOuter(), CameraModeClass, NAME_None, RF_NoFlags);
-	check(NewCameraMode);
-
-	CameraModeInstances.Add(NewCameraMode);
-
-	return NewCameraMode;
-}
-
+PRAGMA_DISABLE_OPTIMIZATION
 void US1CameraModeStack::PushCameraMode(TSubclassOf<US1CameraMode>& CameraModeClass)
 {
 	if (!CameraModeClass)
@@ -272,14 +280,15 @@ void US1CameraModeStack::PushCameraMode(TSubclassOf<US1CameraMode>& CameraModeCl
 	// - Blend를 하지 않는다면, BlendWeight를 1.0에 넣어 새로 넣는 CameraMode만 적용할 것이다
 	const bool bShouldBlend = ((CameraMode->BlendTime > 0.f) && (StackSize > 0));
 	const float BlendWeight = (bShouldBlend ? ExistingStackContribution : 1.f);
-	CameraMode->BlendWeight = BlendWeight;
+
+	CameraMode->SetBlendWeight(BlendWeight);
 
 	// 0번 인덱스에 넣어준다 O(n)
 	// 블렌드를 수행할 때  가중치에 따라 순회하면서 Remove를 하기 때문에 해당 방식으로 구현
 	CameraModeStack.Insert(CameraMode, 0);
 
 	// 반드시 Last는 BlendWeight가 1.f이 되어야함(0.f~1.f의 Contribution이 되어야 하기 때문)
-	CameraModeStack.Last()->BlendWeight = 1.f;
+	CameraModeStack.Last()->SetBlendWeight(1.f);
 
 }
 
@@ -288,6 +297,29 @@ void US1CameraModeStack::EvaluateStack(float DeltaTime, FS1CameraModeView& OutCa
 	// Top -> Bottom [0 -> Num]까지 순차적으로 Stack에 있는 CmaeraMode 업데이트
 	UpdateStack(DeltaTime);
 	BlendStack(OutCameraModeView);
+}
+
+US1CameraMode* US1CameraModeStack::GetCameraModeInstance(TSubclassOf<US1CameraMode>& CameraModeClass)
+{
+	check(CameraModeClass);
+
+	// CameraModeInstances에서 먼저 새엇왿어있는 지 체크 후 변환
+	for (US1CameraMode* CameraMode : CameraModeInstances)
+	{
+		// CameraMode는 UClass를 비교한다
+		// - 즉 CameraMode는 클래스 타입에 하나만 생기게된다
+		if ((CameraMode != nullptr) && (CameraMode->GetClass() == CameraModeClass))
+		{
+			return CameraMode;
+		}
+	}
+
+	US1CameraMode* NewCameraMode = NewObject<US1CameraMode>(GetOuter(), CameraModeClass, NAME_None, RF_NoFlags);
+	check(NewCameraMode);
+
+	CameraModeInstances.Add(NewCameraMode);
+
+	return NewCameraMode;
 }
 
 void US1CameraModeStack::UpdateStack(float DeltaTime)
@@ -349,3 +381,4 @@ void US1CameraModeStack::BlendStack(FS1CameraModeView& OutCameraModeView) const
 	}
 }
 
+PRAGMA_ENABLE_OPTIMIZATION

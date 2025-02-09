@@ -16,6 +16,7 @@
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Character/S1PawnData.h"
 #include "GameFramework/Character.h"
+#include "Equipment/S1QuickBarComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
 
 /** FeatureName 정의 : static member variable 초기화 */
@@ -32,9 +33,14 @@ US1PlayerComponent::US1PlayerComponent(const FObjectInitializer& ObjectInitializ
     PrimaryComponentTick.bCanEverTick = false;
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 TSubclassOf<US1CameraMode> US1PlayerComponent::DetermineCameraMode() const
 {
+    if (AbilityCameraMode)
+    {
+        return AbilityCameraMode;
+    }
+
     const APawn* Pawn = GetPawn<APawn>();
     if (!Pawn)
     {
@@ -51,7 +57,7 @@ TSubclassOf<US1CameraMode> US1PlayerComponent::DetermineCameraMode() const
 
     return nullptr;
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
 
 
 void US1PlayerComponent::OnRegister()
@@ -358,6 +364,24 @@ void US1PlayerComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
                 S1ASC->AbilityInputTagReleased(InputTag);
             }
         }
+    }
+}
+
+void US1PlayerComponent::SetAbilityCameraMode(TSubclassOf<US1CameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle)
+{
+    if (CameraMode)
+    {
+        AbilityCameraMode = CameraMode;
+        AbilityCameraModeOwningSpecHandle = OwningSpecHandle;
+    }
+}
+
+void US1PlayerComponent::ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle)
+{
+    if (AbilityCameraModeOwningSpecHandle == OwningSpecHandle)
+    {
+        AbilityCameraMode = nullptr;
+        AbilityCameraModeOwningSpecHandle = FGameplayAbilitySpecHandle();
     }
 }
 

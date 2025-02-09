@@ -10,8 +10,6 @@
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "Kismet/GameplayStatics.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/WidgetComponent.h"
 #include "GameModes/AsyncAction_ExperienceReady.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1BotCharacter)
 
@@ -20,9 +18,6 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
-
-	// Widget(3D) 생성
-	Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
 
 	// HealthComponent 생성
 	HealthComponent = ObjectInitializer.CreateDefaultSubobject<US1HealthComponent>(this, TEXT("HealthComponent"));
@@ -36,12 +31,6 @@ void AS1BotCharacter::BeginPlay()
 void AS1BotCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	// Enemy의 Widget을 추가해주도록 하자
-	if (HeathBarWidget)
-	{
-		//Widget->SetWidget(CreateWidget<UUserWidget>(this, HeathBarWidget));
-	}
 
 	US1AbilitySystemComponent* ASC = Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent());
 	check(ASC);
@@ -71,7 +60,7 @@ UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 	return PS->GetS1AbilitySystemComponent();
 }
 
-void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor)
+void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor, EHitResponse HitResponse)
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	check(ASC);
@@ -93,10 +82,12 @@ void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> D
 		if (CurHp > 0.f)
 		{
 			//GetMesh()->GetAnimInstance()->Montage_Play();
-			BotController->SetStateAsAttacking(DamageCursor);
+			BotController->SetStateAsAttacking(DamageCursor, false);
+			HitReact(HitResponse);
 		}
 		else
 		{
+			bDead = true;
 			Die();
 		}
 	}

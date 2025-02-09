@@ -12,6 +12,7 @@
 #include "Perception/AISense_Damage.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AIPerceptionTypes.h"
+#include <Character/S1BotCharacter.h>
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SeekSightBotController)
 
 ASeekSightBotController::ASeekSightBotController(const FObjectInitializer& ObjectInitializer)
@@ -73,21 +74,23 @@ void ASeekSightBotController::SetStateAsPassive()
     Blackboard->SetValueAsEnum(StateKeyName, (uint8)EAIState::Passive);
 }
 
-void ASeekSightBotController::SetStateAsAttacking(AActor* TargetActor)
+void ASeekSightBotController::SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget)
 {
-    AActor* NewTargetEnemy = nullptr;
+    AActor* NewTargetEnemy = TargetActor;
 
-    // 타겟이 기존에 있었다면 유지
-    if (TargetEnemy)
+    if (UseLastKnownAttackTarget && TargetEnemy)
     {
         NewTargetEnemy = TargetEnemy;
     }
-    // 기존 타겟이 없다면 현재 들어온 Actor로 타겟을 변경
-    else
+    
+    // @TODO HORK 나중에 인터페이스로 뺄 예정
+    if (AS1BotCharacter* Test = Cast<AS1BotCharacter>(NewTargetEnemy))
     {
-        NewTargetEnemy = TargetActor;
+        if (Test->IsDead())
+        {
+            NewTargetEnemy = TargetActor;
+        }
     }
-
 
     // 타겟이 존재하지 않는다면 패시브 상태 전환
     if (!NewTargetEnemy)
@@ -96,22 +99,24 @@ void ASeekSightBotController::SetStateAsAttacking(AActor* TargetActor)
         return;
     }
 
+
+
     // ASC를 가져오고
     UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(NewTargetEnemy);
-    check(TargetASC);
-
-    // ASC에서 HealthSet을 가져와 Hp를 가져온다
-    const US1HealthSet* HealthSet = TargetASC->GetSet<US1HealthSet>();
-    float CurHp = HealthSet->GetHealth();
-
-    // @TODO HORK 테스트용으로 일단 HP 10을 넣어둠(나중에 수정해야함, 0으로)
-    // 플레이어 죽었다면 Passive 상태로 전환해주자
-    if (CurHp <= 10)
+    if (ensure(TargetASC))
     {
-        SetStateAsPassive();
-        return;
-    }
+        // ASC에서 HealthSet을 가져와 Hp를 가져온다
+        const US1HealthSet* HealthSet = TargetASC->GetSet<US1HealthSet>();
+        float CurHp = HealthSet->GetHealth();
 
+        // @TODO HORK 테스트용으로 일단 HP 10을 넣어둠(나중에 수정해야함, 0으로)
+        // 플레이어 죽었다면 Passive 상태로 전환해주자
+        if (CurHp <= 0.f)
+        {
+            SetStateAsPassive();
+            return;
+        }
+    }
 
     // 타겟을 정하고, 공격 상태로 전이
     TargetEnemy = NewTargetEnemy;
@@ -150,7 +155,8 @@ EAIState ASeekSightBotController::GetCurrentState() const
 void ASeekSightBotController::HandleSensedSight(AActor* PerceptionActor)
 {
     // @TODO HORK 나중에 TeamID 값으로 따라 갈 수 있도록 설정(아마.. 페로몬 폭탄 같은 거에서 쓸 수 있을 듯?) 
-    if (GetWorld()->GetFirstPlayerController()->GetPawn() == PerceptionActor)
+   // if (GetWorld()->GetFirstPlayerController()->GetPawn() == PerceptionActor)
+    if(UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PerceptionActor))
     {
         KnownSeenActors.AddUnique(PerceptionActor);
 
@@ -161,7 +167,7 @@ void ASeekSightBotController::HandleSensedSight(AActor* PerceptionActor)
         case EAIState::Passive:
         case EAIState::Investigating:
         case EAIState::Seeking:
-            SetStateAsAttacking(PerceptionActor);
+            SetStateAsAttacking(PerceptionActor, true);
             break;
         // 공격 상태라면 Seek상태에 대한 타이머를 초기화 시켜준다
         case EAIState::Attacking:
@@ -211,7 +217,7 @@ void ASeekSightBotController::HandleSensedDamage(AActor* PerceptionActor)
     case EAIState::Investigating:
     case EAIState::Seeking:
     case EAIState::Frozen:
-        SetStateAsAttacking(PerceptionActor);
+        SetStateAsAttacking(PerceptionActor, true);
         break;
     case EAIState::Attacking:
     case EAIState::Dead:

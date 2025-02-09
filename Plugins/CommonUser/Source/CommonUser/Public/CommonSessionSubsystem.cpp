@@ -7,7 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CommonSessionSubsystem)
 
-PRAGMA_DISABLE_OPTIMIZATION
+
 void UCommonSessionSubsystem::HostSession(APlayerController* HostingPlayer, UCommonSession_HostSessionRequest* Request)
 {
 	ULocalPlayer* LocalPlayer = (HostingPlayer != nullptr) ? HostingPlayer->GetLocalPlayer() : nullptr;
@@ -20,7 +20,7 @@ void UCommonSessionSubsystem::HostSession(APlayerController* HostingPlayer, UCom
 	// 받은 Request에서 MapID와 ExtraArgs를 통해 URL을 생성하고, MapLoad를 수행한다
 	GetWorld()->ServerTravel(Request->ConstructTravelURL());
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
 
 FString UCommonSession_HostSessionRequest::ConstructTravelURL() const
 {
