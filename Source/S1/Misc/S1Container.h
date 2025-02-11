@@ -6,6 +6,9 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "S1Container.generated.h"
 
+/** foward declarations */
+class UGameplayEffect;
+
 UENUM(BlueprintType)
 enum class EMovementState : uint8
 {
@@ -34,6 +37,7 @@ struct FMovementState
 
 };
 
+
 UENUM(BlueprintType)
 enum class EHitResponse : uint8
 {
@@ -44,6 +48,7 @@ enum class EHitResponse : uint8
     Frozen,
     KnockBack
 };
+
 
 UENUM(BlueprintType)
 enum class EPlayerStance : uint8

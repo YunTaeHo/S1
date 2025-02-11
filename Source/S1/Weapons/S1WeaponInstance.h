@@ -7,6 +7,9 @@
 #include "Cosmetics/S1CosmeticAnimationTypes.h"
 #include "S1WeaponInstance.generated.h"
 
+struct FDamageInfo;
+
+
 UCLASS()
 class S1_API US1WeaponInstance : public US1EquipmentInstance
 {
@@ -30,5 +33,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
     FS1AnimLayerSelectionSet UnequippedAnimSet;
 
-
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage)
+    TArray<FDamageInfo> DamageInfos;
 }; 

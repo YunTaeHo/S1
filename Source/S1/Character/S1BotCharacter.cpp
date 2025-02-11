@@ -43,6 +43,39 @@ void AS1BotCharacter::PossessedBy(AController* NewController)
 	HealthComponent->InitializeWithAbilitySystem(ASC);
 }
 
+void AS1BotCharacter::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	check(ASC);
+
+	if (Info.DamageEffect)
+	{
+		FGameplayEffectContextHandle EffectContext;
+		ASC->BP_ApplyGameplayEffectToSelf(Info.DamageEffect, Info.Level, EffectContext);
+		AS1BotController* BotController = Cast<AS1BotController>(GetController());
+
+		check(BotController);
+
+		BotController->SetStateAsFrozen();
+
+		// ASC에서 HealthSet을 가져와 Hp를 가져온다
+		const US1HealthSet* HealthSet = ASC->GetSet<US1HealthSet>();
+		float CurHp = HealthSet->GetHealth();
+
+		if (CurHp > 0.f)
+		{
+			//GetMesh()->GetAnimInstance()->Montage_Play();
+			BotController->SetStateAsAttacking(DamageCursor, false);
+			HitReact(Info.HitResponse, DamageCursor);
+		}
+		else
+		{
+			BotCombatSystemComponent->SetDead(true);
+			Die();
+		}
+	}
+}
+
 void AS1BotCharacter::CallOnAttackEnd()
 {
 	OnAttackEnded.Broadcast();
@@ -77,41 +110,6 @@ UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 
 
 	return PS->GetS1AbilitySystemComponent();
-}
-
-
-
-void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor, EHitResponse HitResponse)
-{
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	check(ASC);
-
-	if (DamageEffect)
-	{
-		FGameplayEffectContextHandle EffectContext;
-		ASC->BP_ApplyGameplayEffectToSelf(DamageEffect, Damage, EffectContext);
-		AS1BotController* BotController = Cast<AS1BotController>(GetController());
-
-		check(BotController);
-
-		BotController->SetStateAsFrozen();
-
-		// ASC에서 HealthSet을 가져와 Hp를 가져온다
-		const US1HealthSet* HealthSet = ASC->GetSet<US1HealthSet>();
-		float CurHp = HealthSet->GetHealth();
-
-		if (CurHp > 0.f)
-		{
-			//GetMesh()->GetAnimInstance()->Montage_Play();
-			BotController->SetStateAsAttacking(DamageCursor, false);
-			HitReact(HitResponse, DamageCursor);
-		}
-		else
-		{
-			BotCombatSystemComponent->SetDead(true);
-			Die();
-		}
-	}
 }
 
 void AS1BotCharacter::JumpToDestination(FVector Location)

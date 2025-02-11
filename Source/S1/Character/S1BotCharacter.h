@@ -6,6 +6,7 @@
 #include "ModularCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "Misc/S1Container.h"
+#include "Interface/CombatInterface.h"
 #include "S1BotCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEnded);
@@ -21,6 +22,7 @@ class US1GameplayAbility;
 class UAnimMontage;
 class AS1PatrolRoute;
 class US1BotCombatSystemComponent;
+struct FDamageInfo;
 
 
 USTRUCT(BlueprintType)
@@ -40,7 +42,7 @@ struct FIdealRange
 };
 
 UCLASS()
-class S1_API AS1BotCharacter : public AModularCharacter, public IAbilitySystemInterface
+class S1_API AS1BotCharacter : public AModularCharacter, public IAbilitySystemInterface, public ICombatInterface
 {
     GENERATED_BODY()
 
@@ -53,13 +55,18 @@ public:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 
+	/*
+	 * ICombatInterface`s Interface
+	 */
+	virtual void DamageOnEvent(AActor* DamageCursor, FDamageInfo Info) override;
+
+
 
 /** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
 public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetMovementSpeed(EMovementState MoveState) {}
-	UFUNCTION(BlueprintCallable)
-	virtual void DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor = nullptr, EHitResponse HitResponse = EHitResponse::None);
+
 	UFUNCTION(BlueprintCallable)
 	virtual void JumpToDestination(FVector Location);
 
@@ -176,6 +183,10 @@ protected:
 	/** 이동속도 관련 변수 (GetMovementSpeed 에서 사용) */
 	UPROPERTY(EditAnywhere, Category = "S1|Movement")
 	FMovementState MovementState;
+
+	/** 데미지를 적용할 수 있는 변수*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "S1|Damage")
+	TArray<FDamageInfo> DamageInfos;
 
 protected:
 	/** 현재 내가 소유한 공격 토큰이 몇 개 인지 */

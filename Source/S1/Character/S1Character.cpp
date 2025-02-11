@@ -7,6 +7,7 @@
 #include "S1HealthComponent.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Combat/S1CombatSystemComponent.h"
+#include "AbilitySystem/Attributes/S1HealthSet.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1Character)
 
 AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
@@ -18,8 +19,8 @@ AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
 	//S1PawnHandler 설정
 	PawnHandlerComponent = CreateDefaultSubobject<US1PawnHandler>(TEXT("PawnHandler"));
 	{
-		PawnHandlerComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
-		PawnHandlerComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
+		PawnHandlerComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &AS1Character::OnAbilitySystemInitialized));
+		PawnHandlerComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &AS1Character::OnAbilitySystemUninitialized));
 	}
 
 	// CameraComponent 생성
@@ -31,6 +32,13 @@ AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
 	{
 		HealthComponent = CreateDefaultSubobject<US1HealthComponent>(TEXT("HealthComponent"));
 	}
+
+	// CombatSystemComponent 생성
+	{
+		CombatSystemComponent = CreateDefaultSubobject<US1CombatSystemComponent>(TEXT("CombatSystemComponent"));
+	}
+
+	
 }
 
 void AS1Character::OnAbilitySystemInitialized()
@@ -61,20 +69,55 @@ UAbilitySystemComponent* AS1Character::GetAbilitySystemComponent() const
 	return PawnHandlerComponent->GetS1AbilitySystemComponent();
 }
 
+void AS1Character::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	check(ASC);
+
+	if (Info.DamageEffect)
+	{
+		// 기존 Health를 저장하고
+		const US1HealthSet* HealthSet = ASC->GetSet<US1HealthSet>();
+		float OldValue = HealthSet->GetHealth();
+
+		// Damage를 적용한다
+		FGameplayEffectContextHandle EffectContext;
+		ASC->BP_ApplyGameplayEffectToSelf(Info.DamageEffect, Info.Level, EffectContext);
+
+		// Damage가 적용된 Health를 가져온다
+		float NewValue = HealthSet->GetHealth();
+
+		// 이후 Health가 변경된 것을 확인할 수 있게 Brocast를 호출한다
+		HealthComponent->OnHealthChanged.Broadcast(HealthComponent, OldValue, NewValue, DamageCursor);
+
+		// 아직 살아있다면 HitReact를 넣어주고
+		if (NewValue > 0.f)
+		{
+			HitReact(Info.HitResponse, DamageCursor);
+		}
+		// 죽었다면 Die를 호출한다
+		else
+		{
+			CombatSystemComponent->SetDead(true);
+			Die();
+		}
+	}
+}
+
 bool AS1Character::ReserveAttackToken(int32 Amount)
 {
-	if (US1CombatSystemComponent* CombatSystem = FindComponentByClass<US1CombatSystemComponent>())
-	{
-		return CombatSystem->ReserveAttackToken(Amount);
-	}
-
-	return false;
+	return CombatSystemComponent->ReserveAttackToken(Amount);
 }
 
 void AS1Character::ReturnAttackToken(int32 Amount)
+{	
+	CombatSystemComponent->ReturnAttackToken(Amount);
+}
+
+void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
 {
-	if (US1CombatSystemComponent* CombatSystem = FindComponentByClass<US1CombatSystemComponent>())
-	{
-		CombatSystem->ReturnAttackToken(Amount);
-	}
+}
+
+void AS1Character::Die()
+{
 }

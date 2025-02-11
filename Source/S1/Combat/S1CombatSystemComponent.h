@@ -15,6 +15,37 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStuned, bool, bStuned);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnKnockBacked, bool, bKnockBacked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttacked, bool, bAttacked, EAttackType, AttackType);
 
+/*
+ *  Damage에 대한 모든 정보를 담아주는 구조체
+ *  - 무기의 Level로 데미지를 올려준다
+ *  - 해당 DamageEffect로 데미지를 적용시킨다
+ *  - 기절, 그로기를 시킬 수 있다
+ *  - Damage를 준 객체가 누군 지 알 수 있다
+ */
+USTRUCT(BlueprintType)
+struct FDamageInfo
+{
+    GENERATED_BODY()
+
+    FDamageInfo() {}
+
+    FDamageInfo(float InLevel, TSubclassOf<UGameplayEffect> InDamageEffect, EHitResponse InHitResponse = EHitResponse::None)
+        : Level(InLevel)
+        , DamageEffect(InDamageEffect)
+        , HitResponse(InHitResponse)
+    {
+    }
+
+    UPROPERTY(EditAnywhere, Category = "S1|Damage")
+    float Level;
+
+    UPROPERTY(EditAnywhere, Category = "S1|Damage")
+    TSubclassOf<UGameplayEffect> DamageEffect;
+
+    UPROPERTY(EditAnywhere, Category = "S1|Damage")
+    EHitResponse HitResponse;
+};
+
 UCLASS(Blueprintable, meta = (BlueprintSpawnableComponent))
 class S1_API US1CombatSystemComponent : public UPawnComponent
 {
@@ -82,6 +113,9 @@ public:
 protected:
     UPROPERTY(BlueprintReadWrite, Category = "S1")
     int32 AttackTokenCount = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "S1")
+    FDamageInfo DamageInfos;
 
 
 }; 
