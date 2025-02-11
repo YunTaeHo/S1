@@ -61,6 +61,7 @@ public:
     virtual void HandleSensedSight(AActor* PerceptionActor) {}
     virtual void HandleSensedSound(FVector LocationAtSound) {}
     virtual void HandleSensedDamage(AActor* PerceptionActor) {}
+    virtual bool OnSenseTeam(AActor* PerceptionActor) { return true; }
 
 
 protected:

@@ -50,10 +50,18 @@ void AS1BotCharacter::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 
 	if (Info.DamageEffect)
 	{
+		
+		// 만약 날라오는 탄창을 맞았는데, 블록이 가능하다면?
+		if (Info.bCanBlocked)
+		{
+			// 블록을 시도함
+			TryToBlock();
+		}
+
+		// 
 		FGameplayEffectContextHandle EffectContext;
 		ASC->BP_ApplyGameplayEffectToSelf(Info.DamageEffect, Info.Level, EffectContext);
 		AS1BotController* BotController = Cast<AS1BotController>(GetController());
-
 		check(BotController);
 
 		BotController->SetStateAsFrozen();
@@ -74,6 +82,29 @@ void AS1BotCharacter::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 			Die();
 		}
 	}
+}
+
+void AS1BotCharacter::TryToBlock()
+{
+	if (FMath::RandRange(0.0f, 1.f) <= BlockChance)
+	{
+		StartBlcok(EBlockingState::None);
+	}
+}
+
+int32 AS1BotCharacter::GetTeamNumber()
+{
+	return BotCombatSystemComponent->GetTeamNumber();
+}
+
+bool AS1BotCharacter::IsDead()
+{
+	return BotCombatSystemComponent->IsDead();
+}
+
+void AS1BotCharacter::SetDead(bool bDead)
+{
+	BotCombatSystemComponent->SetDead(bDead);
 }
 
 void AS1BotCharacter::CallOnAttackEnd()

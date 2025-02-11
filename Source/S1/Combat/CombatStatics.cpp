@@ -59,11 +59,11 @@ float UCombatStatics::GetHealPercentage(AActor* Actor, float Percent)
 
 void UCombatStatics::ApplyDamageToTarget(AActor* Actor, AActor* Target, FDamageInfo DamageInfo)
 {
-	if (ICombatInterface* Player = Cast<AS1Character>(Actor))
+	if (ICombatInterface* Character = Cast<ICombatInterface>(Actor))
 	{
-		if (UAbilitySystemComponent* ASC = GetAbilitySystem(Actor))
+		if (GetAbilitySystem(Actor))
 		{
-			Player->DamageOnEvent(Target, DamageInfo);
+			Character->DamageOnEvent(Target, DamageInfo);
 		}
 	}
 }
@@ -71,13 +71,55 @@ void UCombatStatics::ApplyDamageToTarget(AActor* Actor, AActor* Target, FDamageI
 
 void UCombatStatics::ApplyDamageToSelf(AActor* Actor, FDamageInfo DamageInfo)
 {
-	if (ICombatInterface* Player = Cast<AS1Character>(Actor))
+	if (ICombatInterface* Character = Cast<ICombatInterface>(Actor))
 	{
-		if (UAbilitySystemComponent* ASC = GetAbilitySystem(Actor))
+		if (GetAbilitySystem(Actor))
 		{
-			Player->DamageOnEvent(Actor, DamageInfo);
+			Character->DamageOnEvent(Actor, DamageInfo);
 		}
 	}
+}
+
+TArray<AActor*> UCombatStatics::DamageAllNonTeamMembers(AActor* Owner, const TArray<FHitResult>& Hits, FDamageInfo Info)
+{
+	TArray<AActor*> ActorsDamagedSoFar;
+
+	// Hits는 순회하며
+	for (const FHitResult& Hit : Hits)
+	{
+		// 충돌된 액터가 존재하고
+		if (AActor* HitActor = Hit.GetActor())
+		{
+			// 현재 충돌하지 않은 상태에서 서로 다른 팀이라면?
+			if (AnotherTeamNumber(HitActor, Owner) && !ActorsDamagedSoFar.Contains(HitActor))
+			{
+				// 데미지를 주고 배열에 추가한다
+				ApplyDamageToTarget(Hit.GetActor(), Owner, Info);
+				ActorsDamagedSoFar.AddUnique(HitActor);
+			}
+		}
+	}
+
+	return ActorsDamagedSoFar;
+}
+
+AActor* UCombatStatics::DamageFirstNonTeamMember(AActor* Owner, const TArray<FHitResult>& Hits, FDamageInfo Info)
+{
+	// Hits는 순회하며
+	for (const FHitResult& Hit : Hits)
+	{
+		// 충돌된 액터가 존재하고
+		if (AActor* HitActor = Hit.GetActor())
+		{
+			if (AnotherTeamNumber(HitActor, Owner))
+			{
+				ApplyDamageToTarget(Hit.GetActor(), Owner, Info);
+				return HitActor;
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 UAbilitySystemComponent* UCombatStatics::GetAbilitySystem(AActor* Actor)
@@ -91,5 +133,24 @@ UAbilitySystemComponent* UCombatStatics::GetAbilitySystem(AActor* Actor)
 	}
 
 	return ASC;
+}
+
+bool UCombatStatics::AnotherTeamNumber(AActor* Source, AActor* Target)
+{
+	// Combat과 관련된 인터페이스가 있으며
+	if (ICombatInterface* OtherActor = Cast<ICombatInterface>(Target))
+	{
+		// Owner도 해당 인터페이스가 있고
+		if (ICombatInterface* OwnerActor = Cast<ICombatInterface>(Source))
+		{
+			// 현재 충돌하지 않은 상태에서 서로 다른 팀이라면?
+			if (OwnerActor->GetTeamNumber() != OtherActor->GetTeamNumber())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 

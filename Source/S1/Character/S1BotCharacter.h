@@ -59,7 +59,10 @@ public:
 	 * ICombatInterface`s Interface
 	 */
 	virtual void DamageOnEvent(AActor* DamageCursor, FDamageInfo Info) override;
-
+	virtual void TryToBlock() override;
+	virtual int32 GetTeamNumber() override;
+	virtual bool IsDead() override;
+	virtual void SetDead(bool bDead) override;
 
 
 /** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
@@ -190,8 +193,8 @@ protected:
 
 protected:
 	/** 현재 내가 소유한 공격 토큰이 몇 개 인지 */
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
-	int32 TokensUseInCurrentAttack;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "S1|Attack")
+	int32 TokensUseInCurrentAttack = 3;
 
 	/** 공격 자체를 할 수 있는 지*/
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
@@ -206,6 +209,10 @@ protected:
 	/** 방어(블록) 관련 변수 (Start, End, OnBlocked 에서 사용) */
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Block")
 	EBlockingState BlockState;
+
+	UPROPERTY(EditDefaultsOnly, Category = "S1|Block")
+	float BlockChance = 0.3f;
+	
 
 
 protected:

@@ -36,6 +36,7 @@ public:
     virtual void HandleSensedSight(AActor* PerceptionActor) override;
     virtual void HandleSensedSound(FVector LocationAtSound) override;
     virtual void HandleSensedDamage(AActor* PerceptionActor) override;
+    virtual bool OnSenseTeam(AActor* PerceptionActor) override;
 
     void HandleForgotActor(AActor* TargetActor);
     void HandleLostSight(AActor* TargetActor);

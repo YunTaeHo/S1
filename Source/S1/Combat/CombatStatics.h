@@ -42,6 +42,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	static void ApplyDamageToSelf(AActor* Actor, FDamageInfo DamageInfo);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static TArray<AActor*> DamageAllNonTeamMembers(AActor* Owner, const TArray<FHitResult>& Hits, FDamageInfo Info);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static AActor* DamageFirstNonTeamMember(AActor* Owner, const TArray<FHitResult>& Hits, FDamageInfo Info);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static bool AnotherTeamNumber(AActor* Source, AActor* Target);
+
+
 private:
 	static UAbilitySystemComponent* GetAbilitySystem(AActor* Actor);
 

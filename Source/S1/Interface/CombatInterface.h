@@ -27,4 +27,8 @@ class S1_API ICombatInterface
 public:
 	/** 해당 함수를 통해 데미지를 가할 수 있습니다 */
 	virtual void DamageOnEvent(AActor* DamageCursor, FDamageInfo Info) = 0;
+	virtual void TryToBlock() = 0;
+	virtual int32 GetTeamNumber() = 0;
+	virtual bool IsDead() = 0;
+	virtual void SetDead(bool bDead) = 0;
 };

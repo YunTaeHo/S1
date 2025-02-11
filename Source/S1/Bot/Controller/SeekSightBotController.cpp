@@ -15,6 +15,7 @@
 #include "Character/S1BotCharacter.h"
 #include "Combat/S1CombatSystemComponent.h"
 #include "Character/S1Character.h"
+#include "Combat/CombatStatics.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SeekSightBotController)
 
 ASeekSightBotController::ASeekSightBotController(const FObjectInitializer& ObjectInitializer)
@@ -85,21 +86,17 @@ void ASeekSightBotController::SetStateAsAttacking(AActor* TargetActor, bool UseL
         NewTargetEnemy = TargetEnemy;
     }
     
-    // @TODO HORK 나중에 인터페이스로 뺄 예정
-    if (AS1BotCharacter* Bot = Cast<AS1BotCharacter>(NewTargetEnemy))
+    if (ICombatInterface* CombatSystem = Cast<ICombatInterface>(NewTargetEnemy))
     {
-        if (US1CombatSystemComponent* CombatSyatem = Bot->FindComponentByClass<US1CombatSystemComponent>())
+        if (CombatSystem->IsDead())
         {
-            if (CombatSyatem->IsDead())
-            {
-                SetStateAsPassive();
-            }
-            // NewTargetEnemy = TargetActor;
+            SetStateAsPassive();
         }
+        // NewTargetEnemy = TargetActor;
     }
 
-    // 타겟이 존재하지 않는다면 패시브 상태 전환
-    if (!NewTargetEnemy)
+    // 타겟이 존재하지 않는거나 같은 팀이라면 패시브 상태 전환
+    if (!NewTargetEnemy || !UCombatStatics::AnotherTeamNumber(GetCharacter(), NewTargetEnemy))
     {
         SetStateAsPassive();
         return;
@@ -168,14 +165,15 @@ EAIState ASeekSightBotController::GetCurrentState() const
 
 void ASeekSightBotController::HandleSensedSight(AActor* PerceptionActor)
 {
-    // @TODO HORK 나중에 TeamID 값으로 따라 갈 수 있도록 설정(아마.. 페로몬 폭탄 같은 거에서 쓸 수 있을 듯?) 
-    if (GetWorld()->GetFirstPlayerController()->GetPawn() != PerceptionActor)
+    // 같은 팀이라면 핸들링 할 필요가 없다
+    if (OnSenseTeam(PerceptionActor))
     {
         return;
     }
     
     if(UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PerceptionActor))
     {
+        // Perception된 객체를 저장한다
         KnownSeenActors.AddUnique(PerceptionActor);
 
         EAIState CurrentState = GetCurrentState();
@@ -227,6 +225,12 @@ void ASeekSightBotController::HandleSensedSound(FVector LocationAtSound)
 
 void ASeekSightBotController::HandleSensedDamage(AActor* PerceptionActor)
 {
+    // 같은 팀이라면 핸들링 할 필요가 없다
+    if (OnSenseTeam(PerceptionActor))
+    {
+        return;
+    }
+
     EAIState CurrentState = GetCurrentState();
 
     switch (CurrentState)
@@ -242,6 +246,22 @@ void ASeekSightBotController::HandleSensedDamage(AActor* PerceptionActor)
     default:
         break;
     }
+}
+
+bool ASeekSightBotController::OnSenseTeam(AActor* PerceptionActor)
+{
+    if (ICombatInterface* OtherActor = Cast<ICombatInterface>(PerceptionActor))
+    {
+        if (AS1BotCharacter* Bot = Cast<AS1BotCharacter>(GetCharacter()))
+        {
+            if (OtherActor->GetTeamNumber() == Bot->GetTeamNumber())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void ASeekSightBotController::HandleLostSight(AActor* TargetActor)

@@ -104,6 +104,25 @@ void AS1Character::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 	}
 }
 
+void AS1Character::TryToBlock()
+{
+}
+
+int32 AS1Character::GetTeamNumber()
+{
+	return CombatSystemComponent->GetTeamNumber();
+}
+
+bool AS1Character::IsDead()
+{
+	return CombatSystemComponent->IsDead();
+}
+
+void AS1Character::SetDead(bool bDead)
+{
+	CombatSystemComponent->SetDead(bDead);
+}
+
 bool AS1Character::ReserveAttackToken(int32 Amount)
 {
 	return CombatSystemComponent->ReserveAttackToken(Amount);

@@ -36,14 +36,26 @@ struct FDamageInfo
     {
     }
 
+    /** GameplayEffect에 대한 Level */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
     float Level;
 
+    /** 공격을 수행할 GameplayEffect */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
     TSubclassOf<UGameplayEffect> DamageEffect;
 
+    /** 공격 타입이 뭔지 */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
     EHitResponse HitResponse;
+
+    /** 방어가 가능한 지 확인 */
+    UPROPERTY(EditAnywhere, Category = "S1|Damage")
+    bool bCanBlocked;
+
+    /** 강제로 공격을 입힐지 확인 */
+    UPROPERTY(EditAnywhere, Category = "S1|Damage")
+    bool bShouldForceInterrupt;
+
 };
 
 UCLASS(Blueprintable, meta = (BlueprintSpawnableComponent))
@@ -73,9 +85,7 @@ public:
     FOnAttacked OnAttacked;
 
 public:
-    bool IsDead() { return bIsDead; }
-    void SetDead(bool bDead) { bIsDead = bDead; }
-
+    bool IsBlocked() { return bIsBlocked; }
    
 protected:
     /** 현재 기본 공격을 맞은 상태인지? */
@@ -101,14 +111,24 @@ protected:
     /** 현재 공격 상태인지? */
     UPROPERTY(BlueprintReadWrite, Category = "S1")
     bool bIsAttacked;
-
+   
     /** 사망 상태인지? */
     UPROPERTY(BlueprintReadWrite, Category = "S1")
     bool bIsDead;
 
 public:
+    bool IsDead() { return bIsDead; }
+    void SetDead(bool bDead) { bIsDead = bDead; }
+
+public:
+    UFUNCTION(BlueprintCallable, Category = "Combat")
     bool ReserveAttackToken(int32 Amount);
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
     void ReturnAttackToken(int32 Amount);
+
+public:
+    int32 GetTeamNumber() const { return TeamNumber; }
 
 protected:
     UPROPERTY(BlueprintReadWrite, Category = "S1")
@@ -117,5 +137,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "S1")
     FDamageInfo DamageInfos;
 
+    UPROPERTY(EditAnywhere, Category = "S1")
+    int32 TeamNumber;
 
 }; 

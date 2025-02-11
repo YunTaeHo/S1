@@ -37,9 +37,15 @@ public:
 	 */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const final;
 
-/** 데미지 입력 관련 함수 */
-public:
+	/*
+	 * ICombatInterface 
+	 */
 	virtual void DamageOnEvent(AActor* DamageCursor, FDamageInfo Info) override;
+	virtual void TryToBlock() override;
+	virtual int32 GetTeamNumber() override;
+	virtual bool IsDead() override;
+	virtual void SetDead(bool bDead) override;
+
 
 /** 공격 토근 관련 함수*/
 public:
