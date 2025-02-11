@@ -2,7 +2,6 @@
 // Copyright (c) S1
 
 #include "S1BotController.h"
-#include "Bot/BoInterface.h"
 #include "Character/S1BotCharacter.h"
 #include "S1LogChannel.h"
 #include "AbilitySystemComponent.h"
@@ -142,7 +141,7 @@ bool AS1BotController::CanSenseActor(AActor* PerceptionActor, EAISense Sense, FA
 		TSubclassOf<UAISense> StimulusAISense = UAIPerceptionSystem::GetSenseClassForStimulus(this, AIStimulus);
 
 		// AISense가 해당 Sense라면?
-		if (CurrentAISense == StimulusAISense)
+		if (CurrentAISense == StimulusAISense && AIStimulus.WasSuccessfullySensed())
 		{
 			// 시뮬레이션에 대한 정보를 전달하고, true를 반환한다
 			Stimulus = AIStimulus;

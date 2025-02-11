@@ -9,7 +9,6 @@
 /** foward declarations */
 class US1AbilityCost;
 class US1CameraMode;
-class AS1Character;
 class AS1PlayerController;
 class US1PlayerComponent;
 

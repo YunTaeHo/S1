@@ -11,6 +11,7 @@
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameModes/AsyncAction_ExperienceReady.h"
+#include "Bot/S1BotCombatSystemComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1BotCharacter)
 
 AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
@@ -21,6 +22,11 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 
 	// HealthComponent 생성
 	HealthComponent = ObjectInitializer.CreateDefaultSubobject<US1HealthComponent>(this, TEXT("HealthComponent"));
+	
+	// BotCombatSystemComponent 생성 
+	BotCombatSystemComponent = ObjectInitializer.CreateDefaultSubobject<US1BotCombatSystemComponent>(this, TEXT("BotCombatSystemComponent"));
+
+	
 }
 
 void AS1BotCharacter::BeginPlay()
@@ -35,6 +41,19 @@ void AS1BotCharacter::PossessedBy(AController* NewController)
 	US1AbilitySystemComponent* ASC = Cast<US1AbilitySystemComponent>(GetAbilitySystemComponent());
 	check(ASC);
 	HealthComponent->InitializeWithAbilitySystem(ASC);
+}
+
+void AS1BotCharacter::CallOnAttackEnd()
+{
+	OnAttackEnded.Broadcast();
+	TokensUseInCurrentAttack = 0;
+	bCanAttack = false;
+	bIsAttackStart = false;
+}
+
+void AS1BotCharacter::CallOnBlockEnd()
+{
+	OnBlockEnded.Broadcast();
 }
 
 UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
@@ -60,6 +79,8 @@ UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 	return PS->GetS1AbilitySystemComponent();
 }
 
+
+
 void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> DamageEffect, AActor* DamageCursor, EHitResponse HitResponse)
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
@@ -83,11 +104,11 @@ void AS1BotCharacter::DamageOnEvent(float Damage, TSubclassOf<UGameplayEffect> D
 		{
 			//GetMesh()->GetAnimInstance()->Montage_Play();
 			BotController->SetStateAsAttacking(DamageCursor, false);
-			HitReact(HitResponse);
+			HitReact(HitResponse, DamageCursor);
 		}
 		else
 		{
-			bDead = true;
+			BotCombatSystemComponent->SetDead(true);
 			Die();
 		}
 	}
@@ -102,4 +123,9 @@ void AS1BotCharacter::JumpToDestination(FVector Location)
 	UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutLaunchVelocity, GetActorLocation(), NewLocation);
 
 	LaunchCharacter(OutLaunchVelocity, true, true);
+}
+
+void AS1BotCharacter::ReturnAttackToken(int32 Amount)
+{
+	BotCombatSystemComponent->ReturnAttackToken(Amount);
 }

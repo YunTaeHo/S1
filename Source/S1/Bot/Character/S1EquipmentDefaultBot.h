@@ -29,8 +29,7 @@ public:
 
 /** Attack 관련 함수 */
 public:
-	UFUNCTION(BlueprintCallable)
-	void CallOnAttackEnd();
+	virtual void CallOnAttackEnd() override;
 
 
 /** Equip, Unequip 관련 변수 */

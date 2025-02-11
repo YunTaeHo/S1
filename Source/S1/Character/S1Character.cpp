@@ -6,6 +6,7 @@
 #include "Camera/S1CameraComponent.h"
 #include "S1HealthComponent.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "Combat/S1CombatSystemComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1Character)
 
 AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
@@ -58,4 +59,22 @@ UAbilitySystemComponent* AS1Character::GetAbilitySystemComponent() const
 {
 	// 캐싱되어있는 ASC를 가져와서 return 해준다
 	return PawnHandlerComponent->GetS1AbilitySystemComponent();
+}
+
+bool AS1Character::ReserveAttackToken(int32 Amount)
+{
+	if (US1CombatSystemComponent* CombatSystem = FindComponentByClass<US1CombatSystemComponent>())
+	{
+		return CombatSystem->ReserveAttackToken(Amount);
+	}
+
+	return false;
+}
+
+void AS1Character::ReturnAttackToken(int32 Amount)
+{
+	if (US1CombatSystemComponent* CombatSystem = FindComponentByClass<US1CombatSystemComponent>())
+	{
+		CombatSystem->ReturnAttackToken(Amount);
+	}
 }

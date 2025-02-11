@@ -33,6 +33,13 @@ public:
 	 */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const final;
 
+public:
+	UFUNCTION(BlueprintCallable)
+	bool ReserveAttackToken(int32 Amount);
+	UFUNCTION(BlueprintCallable)
+	void ReturnAttackToken(int32 Amount);
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
 	TObjectPtr<US1PawnHandler> PawnHandlerComponent;
 

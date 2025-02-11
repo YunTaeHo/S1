@@ -5,11 +5,11 @@
 
 #include "ModularCharacter.h"
 #include "AbilitySystemInterface.h"
-#include "Bot/BoInterface.h"
 #include "Misc/S1Container.h"
 #include "S1BotCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEnded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBlockEnded);
 
 
 /** foward declarations */
@@ -20,6 +20,7 @@ class UBehaviorTree;
 class US1GameplayAbility;
 class UAnimMontage;
 class AS1PatrolRoute;
+class US1BotCombatSystemComponent;
 
 
 USTRUCT(BlueprintType)
@@ -68,7 +69,7 @@ public:
 	 *	- 각각의 보스 패턴들은 C++로 만들어 BlueprintCallable 하거나, 블루프린트로 구현
 	 */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void Attack();
+	void Attack(AActor* AttackTarget);
 
 	/*
 	 * 각자 죽음에 대해 처리
@@ -84,18 +85,63 @@ public:
 	 *	- 보스 캐릭터는 모두 상태에 대해 반응하지 않음
 	 */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void HitReact(EHitResponse HitResponse);
+	void HitReact(EHitResponse HitResponse, AActor* DamageCursor);
+
+	/*
+	 * 공격을 방어하는 수단의 시작
+	 *	- 방어 자세를 취하면서 Block한다
+	 *	- HitReact에서 Block이 성공하면 방어 애니메이션을 취해주거나 반격한다
+	 *	- Blcok이 실패한다면, 넉백이나 기절, 정지 등을 표현해주자
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void StartBlcok(EBlockingState BlockingState);
+
+	/*
+	 * 공격 방어를 마무리하는 단계
+	 *	- 애니메이션을 가드에서 Idle 단계로 넘어갈 수 있도록 처리해준다
+	 *  - 만약 필요하다면 가드가 끝난 직후 바로 스킬을 사용할 수 있도록 표현한다
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void EndBlcok(EBlockingState BlockingState);
 
 
+	/*
+	 * 공격 시작 전에 표현할 게 있다면 쓰는 함수
+	 *	- 공격 시작전에 이펙트나 즉사 패턴기를 사용한다
+	 *	- 적이 여러명이 한번에 공격하는 것을 방지하기 위해 토큰화를 처리한다
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void StartAttack(AActor* AttackTarget, int32 TokensNeeded);
+
+	/*
+	 * 공격 마무리에 표현할 게 있다면 쓰는 함수
+	 *	- 보스의 패턴이 마무리되고 패턴을 회수할 때 사용한다
+	 *	- 사용한 토큰을 다시 회수하는 역할도 수행할 수 있다
+	 */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void EndAttack(AActor* AttackTarget, int32 TokensNeeded);
+
+public:
+	UFUNCTION(BlueprintCallable)
+	virtual void CallOnAttackEnd();
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackEnded OnAttackEnded;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void CallOnBlockEnd();
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnBlockEnded OnBlockEnded;
+
 
 	/*
 	 * IAbilitySystemInterface
 	 */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const final;
 
+public:
+	void ReturnAttackToken(int32 Amount);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "S1|Patrol")
@@ -103,24 +149,22 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	AS1PatrolRoute* GetPatrolRoute() { return PatrolRoute; }
+	AS1PatrolRoute* GetPatrolRoute() const { return PatrolRoute; }
 
 	UBehaviorTree* GetBehaviorTree() const { return BTAsset; }
-	FIdealRange GetIdealRange() { return IdealRange; }
+	FIdealRange GetIdealRange() const { return IdealRange; }
 
-	UFUNCTION(BlueprintCallable)
-	bool IsDead() { return bDead; }
-
-	/** 나중에 보스가 죽으면 모두 죽을 수 있도록 처리해야함. */
-	void SetDead(bool InDead) { bDead = InDead; }
-
+	int32 GetCurrentAttackToken() const { return TokensUseInCurrentAttack; }
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
     TObjectPtr<US1HealthComponent> HealthComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Attack")
+	TObjectPtr<US1BotCombatSystemComponent> BotCombatSystemComponent;
+
 	/** Behavior Tree */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Behavior")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "S1|AI")
 	TObjectPtr<UBehaviorTree> BTAsset;
 
 
@@ -133,13 +177,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "S1|Movement")
 	FMovementState MovementState;
 
+protected:
+	/** 현재 내가 소유한 공격 토큰이 몇 개 인지 */
+	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
+	int32 TokensUseInCurrentAttack;
+
+	/** 공격 자체를 할 수 있는 지*/
+	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
+	bool bCanAttack;
+
+	/** 공격 시작을 할 수 있는 지*/
+	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
+	bool bIsAttackStart;
+
+
+protected:
+	/** 방어(블록) 관련 변수 (Start, End, OnBlocked 에서 사용) */
+	UPROPERTY(BlueprintReadWrite, Category = "S1|Block")
+	EBlockingState BlockState;
+
 
 protected:
 	/** Nav Link 사용 시 점프 Z Velocity 값 */
 	UPROPERTY(EditAnywhere, Category = "S1|AI|Jump")
 	float ZVelocity = 250.f;
-
-protected:
-	UPROPERTY(BlueprintReadOnly, Category = "S1|Dead")
-	bool bDead;
 }; 

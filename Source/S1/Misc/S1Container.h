@@ -41,6 +41,7 @@ enum class EHitResponse : uint8
     HitReaction,
     Stagger,
     Stun,
+    Frozen,
     KnockBack
 };
 
@@ -55,6 +56,29 @@ enum class EPlayerStance : uint8
     Magic,
 };
 
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+    Tracing,
+    Melee,
+    Projectile,
+    Grenade,
+    Magic,
+};
+
+/*
+ * 가드 성공, 가드 파괴, 가드 성공했지만 넉백 등의 상태를 표현하는 Enum값
+ * 공격에서 이러한 상태를 넘겨주도록 하자
+ */
+UENUM(BlueprintType)
+enum class EBlockingState : uint8
+{
+    None,
+    Block,
+    BlockSuccessfully,
+    BlockBreaken,
+    BlockKnockBack,
+};
 
 
 UCLASS()

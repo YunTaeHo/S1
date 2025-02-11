@@ -12,7 +12,9 @@
 #include "Perception/AISense_Damage.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AIPerceptionTypes.h"
-#include <Character/S1BotCharacter.h>
+#include "Character/S1BotCharacter.h"
+#include "Combat/S1CombatSystemComponent.h"
+#include "Character/S1Character.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SeekSightBotController)
 
 ASeekSightBotController::ASeekSightBotController(const FObjectInitializer& ObjectInitializer)
@@ -84,11 +86,15 @@ void ASeekSightBotController::SetStateAsAttacking(AActor* TargetActor, bool UseL
     }
     
     // @TODO HORK 나중에 인터페이스로 뺄 예정
-    if (AS1BotCharacter* Test = Cast<AS1BotCharacter>(NewTargetEnemy))
+    if (AS1BotCharacter* Bot = Cast<AS1BotCharacter>(NewTargetEnemy))
     {
-        if (Test->IsDead())
+        if (US1CombatSystemComponent* CombatSyatem = Bot->FindComponentByClass<US1CombatSystemComponent>())
         {
-            NewTargetEnemy = TargetActor;
+            if (CombatSyatem->IsDead())
+            {
+                SetStateAsPassive();
+            }
+            // NewTargetEnemy = TargetActor;
         }
     }
 
@@ -145,6 +151,14 @@ void ASeekSightBotController::SetStateAsSkeeing(FVector Location)
 void ASeekSightBotController::SetStateAsDead()
 {
     Blackboard->SetValueAsEnum(StateKeyName, (uint8)EAIState::Dead);
+    if (AS1BotCharacter* Bot = Cast<AS1BotCharacter>(GetCharacter()))
+    {
+        if (AS1Character* Player = Cast<AS1Character>(TargetEnemy))
+        {
+            Player->ReturnAttackToken(Bot->GetCurrentAttackToken());
+        }
+    }
+    
 }
 
 EAIState ASeekSightBotController::GetCurrentState() const
@@ -155,7 +169,11 @@ EAIState ASeekSightBotController::GetCurrentState() const
 void ASeekSightBotController::HandleSensedSight(AActor* PerceptionActor)
 {
     // @TODO HORK 나중에 TeamID 값으로 따라 갈 수 있도록 설정(아마.. 페로몬 폭탄 같은 거에서 쓸 수 있을 듯?) 
-   // if (GetWorld()->GetFirstPlayerController()->GetPawn() == PerceptionActor)
+    if (GetWorld()->GetFirstPlayerController()->GetPawn() != PerceptionActor)
+    {
+        return;
+    }
+    
     if(UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PerceptionActor))
     {
         KnownSeenActors.AddUnique(PerceptionActor);
@@ -237,6 +255,7 @@ void ASeekSightBotController::HandleLostSight(AActor* TargetActor)
         case EAIState::Attacking:
         case EAIState::Frozen:
         case EAIState::Investigating:
+            //SetStateAsSkeeing(TargetEnemy->GetActorLocation());
             GetWorld()->GetTimerManager().ClearTimer(SeekAttackTargetTimer);
             GetWorld()->GetTimerManager().SetTimer(SeekAttackTargetTimer, this, &ThisClass::SeekAttackTarget, TimeToSeekAfterLosingShight);
             break;
@@ -251,9 +270,6 @@ void ASeekSightBotController::HandleLostSight(AActor* TargetActor)
 
 void ASeekSightBotController::HandleForgotActor(AActor* TargetActor)
 {
-    // Shight로 못찾은 Actor를 지워준다
-    KnownSeenActors.Remove(TargetActor);
-
     // TargetEnemy가 지운 Actor라면? Passive 상태로 돌아간다
     if (TargetActor == TargetEnemy)
     {
@@ -274,17 +290,20 @@ void ASeekSightBotController::SeekAttackTarget()
 void ASeekSightBotController::CheckForgettenSeenActor()
 {
     TArray<AActor*> PerceivedActors;
-    AIPerception->GetKnownPerceivedActors(UAISense::StaticClass(), PerceivedActors);
+    AIPerception->GetKnownPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
 
-    if (PerceivedActors.Num() != KnownSeenActors.Num())
+    if (PerceivedActors.Num() != KnownSeenActors.Num() && !KnownSeenActors.IsEmpty())
     {
-        for (AActor* SeenActor : KnownSeenActors)
+        for (auto SeenIt = KnownSeenActors.CreateIterator(); SeenIt; ++SeenIt)
         {
-            if (PerceivedActors.Find(SeenActor) == INDEX_NONE)
+            if (PerceivedActors.Find(*SeenIt) == INDEX_NONE)
             {
-                //HandleForgotActor(SeenActor);
+                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Forget Actor"));
+                HandleForgotActor(*SeenIt);
+                SeenIt.RemoveCurrent();
             }
         }
+
     }
 }
 
