@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CombatStatics.generated.h"
 
@@ -10,7 +9,9 @@
 class APawn;
 class US1HealthSet;
 class UAbilitySystemComponent;
+class AS1Bullet;
 struct FDamageInfo;
+struct FBulletInfo;
 
 /**
  * 
@@ -50,6 +51,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	static bool AnotherTeamNumber(AActor* Source, AActor* Target);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static void SpawnLinearProjectile(FTransform SpawnTransform, TSubclassOf<AS1Bullet> BulletFactory, AActor* Owner, AActor* Target, FDamageInfo DamageInfo, FBulletInfo BulletInfo);
+
+
 
 
 private:

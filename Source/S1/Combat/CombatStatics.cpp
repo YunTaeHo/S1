@@ -5,8 +5,10 @@
 #include "S1CombatSystemComponent.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "AbilitySystemGlobals.h"
+#include "Perception/AISense_Damage.h"
 #include "Character/S1Character.h"
 #include "Character/S1BotCharacter.h"
+#include "Bullet/S1Bullet.h"
 
 // Add default functionality here for any ICombatInterface functions that are not pure virtual.
 
@@ -63,6 +65,7 @@ void UCombatStatics::ApplyDamageToTarget(AActor* Actor, AActor* Target, FDamageI
 	{
 		if (GetAbilitySystem(Actor))
 		{
+			UAISense_Damage::ReportDamageEvent(Actor, Target, Actor, DamageInfo.DamageAmount, Actor->GetActorLocation(), Target->GetActorLocation());
 			Character->DamageOnEvent(Target, DamageInfo);
 		}
 	}
@@ -152,5 +155,14 @@ bool UCombatStatics::AnotherTeamNumber(AActor* Source, AActor* Target)
 	}
 
 	return false;
+}
+
+void UCombatStatics::SpawnLinearProjectile(FTransform SpawnTransform, TSubclassOf<AS1Bullet> BulletFactory, AActor* Owner, AActor* Target, FDamageInfo DamageInfo, FBulletInfo BulletInfo)
+{
+	if (Owner && BulletFactory)
+	{
+		BulletInfo.Target = Target;
+		AS1Bullet::SpawnLinear(Owner, SpawnTransform, BulletFactory, DamageInfo, BulletInfo);
+	}
 }
 
