@@ -108,6 +108,18 @@ void AS1Character::TryToBlock()
 {
 }
 
+void AS1Character::StartBlcok(EBlockingState BlockingState)
+{
+}
+
+void AS1Character::Blocking(EBlockingState BlockingState)
+{
+}
+
+void AS1Character::EndBlcok()
+{
+}
+
 int32 AS1Character::GetTeamNumber()
 {
 	return CombatSystemComponent->GetTeamNumber();
@@ -138,5 +150,9 @@ void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
 }
 
 void AS1Character::Die()
+{
+}
+
+void AS1Character::Attack(AActor* AttackTarget)
 {
 }

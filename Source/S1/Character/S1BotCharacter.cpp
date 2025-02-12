@@ -10,8 +10,15 @@
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameModes/AsyncAction_ExperienceReady.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
 #include "Bot/S1BotCombatSystemComponent.h"
+#include "Combat/CombatStatics.h"
+#include "BrainComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1BotCharacter)
 
 AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
@@ -26,12 +33,23 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 	// BotCombatSystemComponent 생성 
 	BotCombatSystemComponent = ObjectInitializer.CreateDefaultSubobject<US1BotCombatSystemComponent>(this, TEXT("BotCombatSystemComponent"));
 
-	
+	// Head 충돌체 생성
+	Head = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("Head"));
+	Head->SetCollisionProfileName(TEXT("Enemy"));
+	Head->SetupAttachment(GetMesh());
+
+	// Body 충돌체 생성 
+	Body = ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, TEXT("Body"));
+	Body->SetCollisionProfileName(TEXT("Enemy"));
+	Body->SetupAttachment(GetMesh());
+
 }
 
 void AS1BotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BotController = Cast<AS1BotController>(GetController());
 }
 
 void AS1BotCharacter::PossessedBy(AController* NewController)
@@ -50,20 +68,8 @@ void AS1BotCharacter::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 
 	if (Info.DamageEffect)
 	{
-		
-		// 만약 날라오는 탄창을 맞았는데, 블록이 가능하다면?
-		if (Info.bCanBlocked)
-		{
-			// 블록을 시도함
-			TryToBlock();
-		}
-
-		// 
 		FGameplayEffectContextHandle EffectContext;
 		ASC->BP_ApplyGameplayEffectToSelf(Info.DamageEffect, Info.Level, EffectContext);
-		AS1BotController* BotController = Cast<AS1BotController>(GetController());
-		check(BotController);
-
 		BotController->SetStateAsFrozen();
 
 		// ASC에서 HealthSet을 가져와 Hp를 가져온다
@@ -84,14 +90,6 @@ void AS1BotCharacter::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 	}
 }
 
-void AS1BotCharacter::TryToBlock()
-{
-	if (FMath::RandRange(0.0f, 1.f) <= BlockChance)
-	{
-		StartBlcok(EBlockingState::None);
-	}
-}
-
 int32 AS1BotCharacter::GetTeamNumber()
 {
 	return BotCombatSystemComponent->GetTeamNumber();
@@ -107,17 +105,72 @@ void AS1BotCharacter::SetDead(bool bDead)
 	BotCombatSystemComponent->SetDead(bDead);
 }
 
+void AS1BotCharacter::Die()
+{
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetSimulatePhysics(true);
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+	BotController->GetBrainComponent()->StopLogic(TEXT("Bot Character Die"));
+	BotController->SetStateAsDead();
+}
+
+void AS1BotCharacter::Attack(AActor* AttackTarget)
+{
+	if (bIsAttackStart)
+	{
+		bCanAttack = true;
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AS1BotCharacter::CallOnAttackEnd);
+	}
+}
+
+void AS1BotCharacter::HitReact(EHitResponse HitResponse, AActor* DamageCursor)
+{
+	GetCharacterMovement()->StopMovementImmediately();
+	BotController->SetStateAsFrozen();
+	PlayHitMontage(DamageCursor);
+}
+
+void AS1BotCharacter::StartAttack(AActor* AttackTarget, int32 TokensNeeded)
+{
+	if (US1CombatSystemComponent* Combat = AttackTarget->FindComponentByClass<US1CombatSystemComponent>())
+	{
+		Combat->ReserveAttackToken(TokensNeeded);
+		TokensUseInCurrentAttack = TokensNeeded;
+		TargetEnemy = AttackTarget;
+		bIsAttackStart = true;
+	}
+	else
+	{
+		bIsAttackStart = false;
+	}
+}
+
+void AS1BotCharacter::EndAttack(AActor* AttackTarget, int32 TokensNeeded)
+{
+	if (US1CombatSystemComponent* Combat = AttackTarget->FindComponentByClass<US1CombatSystemComponent>())
+	{
+		Combat->ReturnAttackToken(TokensNeeded);
+	}
+
+	CallOnAttackEnd();
+}
+
 void AS1BotCharacter::CallOnAttackEnd()
 {
 	OnAttackEnded.Broadcast();
 	TokensUseInCurrentAttack = 0;
 	bCanAttack = false;
 	bIsAttackStart = false;
-}
-
-void AS1BotCharacter::CallOnBlockEnd()
-{
-	OnBlockEnded.Broadcast();
+	TargetEnemy = nullptr;
 }
 
 UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
@@ -157,4 +210,31 @@ void AS1BotCharacter::JumpToDestination(FVector Location)
 void AS1BotCharacter::ReturnAttackToken(int32 Amount)
 {
 	BotCombatSystemComponent->ReturnAttackToken(Amount);
+}
+
+void AS1BotCharacter::CallOnHitEnd(UAnimMontage* AnimMontage, bool bInterrupted)
+{
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* Anim = MeshComp->GetAnimInstance())
+		{
+			Anim->OnMontageEnded.RemoveAll(this);
+		}
+	}
+
+	// TargetEnemy가 없거나 가비지 컬렉터에 수집되었다면?
+	if (!TargetEnemy || !TargetEnemy->IsGarbageEliminationEnabled())
+	{
+		BotController->SetStateAsPassive();
+		return;
+	}
+
+	// 서로 다른 팀이면?
+	//if (UCombatStatics::AnotherTeamNumber(GetOwner(), TargetEnemy))
+	{
+		BotController->SetStateAsAttacking(TargetEnemy, true);
+	}
+
+
+	
 }

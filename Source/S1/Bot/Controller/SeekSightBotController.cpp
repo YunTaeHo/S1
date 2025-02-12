@@ -11,11 +11,11 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Damage.h"
 #include "Perception/AISense_Hearing.h"
-#include "Perception/AIPerceptionTypes.h"
 #include "Character/S1BotCharacter.h"
 #include "Combat/S1CombatSystemComponent.h"
 #include "Character/S1Character.h"
 #include "Combat/CombatStatics.h"
+#include "Interface/TeamInterface.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SeekSightBotController)
 
 ASeekSightBotController::ASeekSightBotController(const FObjectInitializer& ObjectInitializer)
@@ -166,7 +166,7 @@ EAIState ASeekSightBotController::GetCurrentState() const
 void ASeekSightBotController::HandleSensedSight(AActor* PerceptionActor)
 {
     // 같은 팀이라면 핸들링 할 필요가 없다
-    if (OnSenseTeam(PerceptionActor))
+    if (!UCombatStatics::AnotherTeamNumber(GetCharacter(), PerceptionActor))
     {
         return;
     }
@@ -226,7 +226,7 @@ void ASeekSightBotController::HandleSensedSound(FVector LocationAtSound)
 void ASeekSightBotController::HandleSensedDamage(AActor* PerceptionActor)
 {
     // 같은 팀이라면 핸들링 할 필요가 없다
-    if (OnSenseTeam(PerceptionActor))
+    if (!UCombatStatics::AnotherTeamNumber(GetCharacter(), PerceptionActor))
     {
         return;
     }
@@ -248,21 +248,6 @@ void ASeekSightBotController::HandleSensedDamage(AActor* PerceptionActor)
     }
 }
 
-bool ASeekSightBotController::OnSenseTeam(AActor* PerceptionActor)
-{
-    if (ICombatInterface* OtherActor = Cast<ICombatInterface>(PerceptionActor))
-    {
-        if (AS1BotCharacter* Bot = Cast<AS1BotCharacter>(GetCharacter()))
-        {
-            if (OtherActor->GetTeamNumber() == Bot->GetTeamNumber())
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
 
 void ASeekSightBotController::HandleLostSight(AActor* TargetActor)
 {

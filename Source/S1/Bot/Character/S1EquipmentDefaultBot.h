@@ -67,20 +67,20 @@ protected:
 
 
 protected:
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Equipment")
 	TObjectPtr<UAnimMontage> EquippedMontage;
 
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Equipment")
 	float EquippedMontagePlayRate = 1.f;
 
 
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Equipment")
 	TObjectPtr<UAnimMontage> UnequippedMontage;
 
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Equipment")
 	float UnequippedMontagePlayRate = 1.f;
 
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Equipment")
 	TSubclassOf<AActor> WeaponClass;
 
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
@@ -90,11 +90,11 @@ protected:
 
 protected:
 	/** Attack Montage*/
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Attack")
 	TObjectPtr<UAnimMontage> AttackMontage;
 
 	/** Attack Montage Rate*/
-	UPROPERTY(BlueprintReadWrite, Category = "S1|Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Attack")
 	float AttackMontagePlayRate = 1.f;
 
 	UPROPERTY(BlueprintAssignable)

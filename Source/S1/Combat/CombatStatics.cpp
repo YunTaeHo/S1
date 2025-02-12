@@ -141,10 +141,10 @@ UAbilitySystemComponent* UCombatStatics::GetAbilitySystem(AActor* Actor)
 bool UCombatStatics::AnotherTeamNumber(AActor* Source, AActor* Target)
 {
 	// Combat과 관련된 인터페이스가 있으며
-	if (ICombatInterface* OtherActor = Cast<ICombatInterface>(Target))
+	if (ITeamInterface* OtherActor = Cast<ITeamInterface>(Target))
 	{
 		// Owner도 해당 인터페이스가 있고
-		if (ICombatInterface* OwnerActor = Cast<ICombatInterface>(Source))
+		if (ITeamInterface* OwnerActor = Cast<ITeamInterface>(Source))
 		{
 			// 현재 충돌하지 않은 상태에서 서로 다른 팀이라면?
 			if (OwnerActor->GetTeamNumber() != OtherActor->GetTeamNumber())
