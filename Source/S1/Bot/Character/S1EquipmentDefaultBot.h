@@ -58,15 +58,6 @@ private:
 
 
 protected:
-	// 이 둘은 나중에 보스랑 비교해야해서 따로 뺄 예정
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
-	TObjectPtr<UWidgetComponent> Widget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "S1|Widget")
-	TSubclassOf<UClientUserWidget> HeathBarWidget;
-
-
-protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Equipment")
 	TObjectPtr<UAnimMontage> EquippedMontage;
 

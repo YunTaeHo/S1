@@ -15,10 +15,13 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/ClientUserWidget.h"
 #include "Animation/AnimInstance.h"
 #include "Bot/S1BotCombatSystemComponent.h"
 #include "Combat/CombatStatics.h"
 #include "BrainComponent.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1BotCharacter)
 
 AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
@@ -43,6 +46,9 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 	Body->SetCollisionProfileName(TEXT("Enemy"));
 	Body->SetupAttachment(GetMesh());
 
+	// Widget(3D) 생성
+	Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
+	Widget->SetupAttachment(GetMesh());
 }
 
 void AS1BotCharacter::BeginPlay()
@@ -50,6 +56,15 @@ void AS1BotCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	BotController = Cast<AS1BotController>(GetController());
+
+	// Enemy의 Widget을 추가해주도록 하자
+	if (HeathBarWidget)
+	{
+		UClientUserWidget* WidgetTemp = CreateWidget<UClientUserWidget>(GetWorld(), HeathBarWidget);
+		WidgetTemp->SetOwner(this);
+
+		Widget->SetWidget(WidgetTemp);
+	}
 }
 
 void AS1BotCharacter::PossessedBy(AController* NewController)

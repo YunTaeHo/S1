@@ -3,31 +3,18 @@
 
 #include "S1EquipmentDefaultBot.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Components/WidgetComponent.h"
-#include "UI/ClientUserWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1EquipmentDefaultBot)
 
 AS1EquipmentDefaultBot::AS1EquipmentDefaultBot(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    // Widget(3D) 생성
-    Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
-    Widget->SetupAttachment(GetMesh());
+
 }
 
 void AS1EquipmentDefaultBot::BeginPlay()
 {
     Super::BeginPlay();
-
-    // Enemy의 Widget을 추가해주도록 하자
-    if (HeathBarWidget)
-    {
-        UClientUserWidget* WidgetTemp = CreateWidget<UClientUserWidget>(GetWorld(), HeathBarWidget);
-        WidgetTemp->SetOwner(this);
-     
-        Widget->SetWidget(WidgetTemp);
-    }
 }
 
 void AS1EquipmentDefaultBot::SetMovementSpeed(EMovementState MoveState)
