@@ -185,14 +185,22 @@ protected:
 
 	/** Hit 관련 반수 */
 protected:
-	UPROPERTY()
-	AActor* TargetEnemy;
-
+	/** Hit Montage */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "S1|Hit")
 	TObjectPtr<UAnimMontage> HitReactMontage;
-	
-	UFUNCTION()
-	void CallOnHitEnd(UAnimMontage* AnimMontage, bool bInterrupted);
+
+	/** Hit Montage Rate */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Hit")
+	float HitMontagePlayRate = 1.f;
+
+	/** Attack Montage*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Attack")
+	TObjectPtr<UAnimMontage> AttackMontage;
+
+	/** Attack Montage Rate*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Attack")
+	float AttackMontagePlayRate = 1.f;
+
 
 protected:
 	/** 방어(블록) 관련 변수 (Start, End, OnBlocked 에서 사용) */

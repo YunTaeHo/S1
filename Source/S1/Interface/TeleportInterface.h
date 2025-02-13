@@ -21,6 +21,6 @@ class S1_API ITeleportInterface
 	GENERATED_BODY()
 
 public:
-	/** 해당 함수를 통해 데미지를 가할 수 있습니다 */
+	/** 해당 함수를 통해 텔레포트를 할 수 있습니다 */
 	virtual void Teleport(FVector Location) = 0;
 };

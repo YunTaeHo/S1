@@ -38,11 +38,6 @@ void AS1MeleeDefaultBot::Attack(AActor* Target)
 	if (bCanAttack)
 	{
 		PlayAttackMontage(Target);
-		//UAnimInstance* Anim = GetMesh()->GetAnimInstance();
-
-		//Anim->Montage_Play(SlashMontage, 1.f);
-
-		//Anim->OnPlayMontageNotifyBegin.AddDynamic(this, &AS1MeleeDefaultBot::NotfiyOnSlashBegin);
 	}
 }
 

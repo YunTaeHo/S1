@@ -145,7 +145,6 @@ void AS1BotCharacter::StartAttack(AActor* AttackTarget, int32 TokensNeeded)
 	{
 		Combat->ReserveAttackToken(TokensNeeded);
 		TokensUseInCurrentAttack = TokensNeeded;
-		TargetEnemy = AttackTarget;
 		bIsAttackStart = true;
 	}
 	else
@@ -170,7 +169,6 @@ void AS1BotCharacter::CallOnAttackEnd()
 	TokensUseInCurrentAttack = 0;
 	bCanAttack = false;
 	bIsAttackStart = false;
-	TargetEnemy = nullptr;
 }
 
 UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
@@ -210,31 +208,4 @@ void AS1BotCharacter::JumpToDestination(FVector Location)
 void AS1BotCharacter::ReturnAttackToken(int32 Amount)
 {
 	BotCombatSystemComponent->ReturnAttackToken(Amount);
-}
-
-void AS1BotCharacter::CallOnHitEnd(UAnimMontage* AnimMontage, bool bInterrupted)
-{
-	if (USkeletalMeshComponent* MeshComp = GetMesh())
-	{
-		if (UAnimInstance* Anim = MeshComp->GetAnimInstance())
-		{
-			Anim->OnMontageEnded.RemoveAll(this);
-		}
-	}
-
-	// TargetEnemy가 없거나 가비지 컬렉터에 수집되었다면?
-	if (!TargetEnemy || !TargetEnemy->IsGarbageEliminationEnabled())
-	{
-		BotController->SetStateAsPassive();
-		return;
-	}
-
-	// 서로 다른 팀이면?
-	//if (UCombatStatics::AnotherTeamNumber(GetOwner(), TargetEnemy))
-	{
-		BotController->SetStateAsAttacking(TargetEnemy, true);
-	}
-
-
-	
 }

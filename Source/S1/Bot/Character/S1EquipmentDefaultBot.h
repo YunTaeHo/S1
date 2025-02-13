@@ -89,14 +89,6 @@ protected:
 
 
 protected:
-	/** Attack Montage*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Attack")
-	TObjectPtr<UAnimMontage> AttackMontage;
-
-	/** Attack Montage Rate*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "S1|Attack")
-	float AttackMontagePlayRate = 1.f;
-
 	UPROPERTY(BlueprintAssignable)
 	FOnEquippedEnded OnEquippedEnded;
 

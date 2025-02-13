@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Bot/Character/S1EquipmentDefaultBot.h"
+#include "Bot/Character/Base/S1EquipmentBlockBaseBot.h"
 #include "S1MeleeDefaultBot.generated.h"
 
 /** foward declarations */
@@ -11,7 +11,7 @@ class ASeekSightBotController;
 class UAnimMontage;
 
 UCLASS()
-class S1_API AS1MeleeDefaultBot : public AS1EquipmentDefaultBot, public IBlockInterface
+class S1_API AS1MeleeDefaultBot : public AS1EquipmentBlockBaseBot
 {
     GENERATED_BODY()
 
