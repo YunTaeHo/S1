@@ -6,9 +6,12 @@
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "AbilitySystemGlobals.h"
 #include "Perception/AISense_Damage.h"
+#include "GameFramework/Character.h"
 #include "Character/S1Character.h"
 #include "Character/S1BotCharacter.h"
 #include "Bullet/S1Bullet.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Add default functionality here for any ICombatInterface functions that are not pure virtual.
 
@@ -163,6 +166,44 @@ void UCombatStatics::SpawnLinearProjectile(FTransform SpawnTransform, TSubclassO
 	{
 		BulletInfo.Target = Target;
 		AS1Bullet::SpawnLinear(Owner, SpawnTransform, BulletFactory, DamageInfo, BulletInfo);
+	}
+}
+
+void UCombatStatics::SphereTraceDamage(AActor* WorldContextObject, FVector Start, FVector End, float Radius, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, TArray<AActor*> ActorToIgnore, FDamageInfo DamageInfo, bool bIgnoreSelf)
+{
+	if (WorldContextObject)
+	{
+		TArray<FHitResult> Hits;
+		if (UKismetSystemLibrary::SphereTraceMultiForObjects
+		(
+			WorldContextObject->GetWorld(),
+			Start,
+			End,
+			Radius,
+			ObjectTypes,
+			false,
+			ActorToIgnore,
+			EDrawDebugTrace::Type::ForDuration,
+			Hits,
+			bIgnoreSelf
+		))
+		{
+			UCombatStatics::DamageAllNonTeamMembers(WorldContextObject, Hits, DamageInfo);
+		}
+	}
+}
+
+void UCombatStatics::JumpToVelocity(AActor* Owner, FVector StartPos, FVector EndPos, float ZVelocity, bool XYOverride, bool ZOverride)
+{
+	EndPos.Z += ZVelocity;
+
+	FVector LaunchVelocity;
+
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(Owner->GetWorld(), LaunchVelocity, StartPos, EndPos);
+	
+	if (ACharacter* Character = Cast<ACharacter>(Owner))
+	{
+		Character->LaunchCharacter(LaunchVelocity, XYOverride, ZOverride);
 	}
 }
 

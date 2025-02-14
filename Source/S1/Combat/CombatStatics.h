@@ -55,7 +55,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	static void SpawnLinearProjectile(FTransform SpawnTransform, TSubclassOf<AS1Bullet> BulletFactory, AActor* Owner, AActor* Target, FDamageInfo DamageInfo, FBulletInfo BulletInfo);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static void SphereTraceDamage(AActor* WorldContextObject, FVector Start, FVector End, float Radius, const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes, TArray<AActor*> ActorToIgnore, FDamageInfo DamageInfo, bool bIgnoreSelf = true);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static void JumpToVelocity(AActor* Owner, FVector StartPos, FVector EndPos, float ZVelocity = 100.f, bool XYOverride = true, bool ZOverride = true);
 
 
 private:

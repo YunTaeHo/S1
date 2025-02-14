@@ -7,6 +7,14 @@
 #include "Interface/TeleportInterface.h"
 #include "S1TeleportBaseBot.generated.h"
 
+UENUM(BlueprintType)
+enum class EWakinGhost : uint8
+{
+    Default,
+    BasicAttack,
+    BarrageAttack
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTeleportEnd);
 
 UCLASS()

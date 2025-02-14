@@ -31,16 +31,6 @@ void AS1MeleeDefaultBot::EndPlay(const EEndPlayReason::Type Reason)
 	Super::EndPlay(Reason);
 }
 
-void AS1MeleeDefaultBot::Attack(AActor* Target)
-{
-	Super::Attack(Target);
-
-	if (bCanAttack)
-	{
-		PlayAttackMontage(Target);
-	}
-}
-
 void AS1MeleeDefaultBot::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
@@ -71,7 +61,6 @@ void AS1MeleeDefaultBot::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 		}
 		else
 		{
-			BotCombatSystemComponent->SetDead(true);
 			Die();
 		}
 	}
@@ -112,7 +101,7 @@ void AS1MeleeDefaultBot::StartBlcok(EBlockingState BlockingState)
 	GetWorld()->GetTimerManager().ClearTimer(HoldBlockTimer);
 	GetCharacterMovement()->StopMovementImmediately();
 	BlockState = EBlockingState::Block;
-	BotCombatSystemComponent->SetBlock(true);
+	//BotCombatSystemComponent->SetBlock(true);
 	GetWorld()->GetTimerManager().SetTimer(HoldBlockTimer, this, &AS1MeleeDefaultBot::EndBlcok, BlockTime, false);
 	PlayBlockStartMontage();
 }
@@ -133,7 +122,7 @@ void AS1MeleeDefaultBot::Blocking(EBlockingState BlockingState)
 void AS1MeleeDefaultBot::EndBlcok()
 {
 	GetWorld()->GetTimerManager().ClearTimer(HoldBlockTimer);
-	BotCombatSystemComponent->SetBlock(false);
+	//BotCombatSystemComponent->SetBlock(false);
 	BlockState = EBlockingState::None;
 	CallOnBlockEnd();
 }
@@ -141,6 +130,53 @@ void AS1MeleeDefaultBot::EndBlcok()
 void AS1MeleeDefaultBot::CallOnBlockEnd()
 {
 	OnBlockEnded.Broadcast();
+}
+
+void AS1MeleeDefaultBot::JumpToAttackTarget(AActor* Target)
+{
+	UCombatStatics::JumpToVelocity(this, GetActorLocation(), CalculateFutureActorLocation(Target, 1.f));
+	LandedDelegate.AddDynamic(this, &AS1MeleeDefaultBot::OnLand);
+}
+
+void AS1MeleeDefaultBot::OnLand(const FHitResult& Hit)
+{
+	LandedDelegate.Remove(this, TEXT("OnLand"));
+	GetCharacterMovement()->StopMovementImmediately();
+}
+
+FVector AS1MeleeDefaultBot::CalculateFutureActorLocation(AActor* Actor, float Time)
+{
+	return Actor->GetActorLocation() + Actor->GetVelocity() * FVector(1.0, 1.0, 0.0) * Time;
+}
+
+void AS1MeleeDefaultBot::SpinMesh()
+{
+	if (UWorld* World = GetWorld())
+	{
+		SpinCurrentTime += World->DeltaTimeSeconds;
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		FRotator Rot = MeshComp->GetRelativeRotation();
+
+		float Yaw = FMath::Lerp(Rot.Yaw, Rot.Yaw + 4320.f, SpinCurrentTime / SpiningTime);
+
+		MeshComp->SetRelativeRotation(FRotator(Rot.Roll, Rot.Pitch, Yaw));
+	}
+}
+
+void AS1MeleeDefaultBot::SpinStart()
+{
+	FTimerHandle Handle;
+	SpinCurrentTime = 0.f;
+	GetWorld()->GetTimerManager().SetTimer(Handle, this, &AS1MeleeDefaultBot::SpinMesh, SpiningTime, true);
+}
+
+void AS1MeleeDefaultBot::ChaseTarget(AActor* Target)
+{
+	FAIMoveRequest Request;
+	Request.SetGoalActor(Target);
+	Request.SetAcceptanceRadius(200.f);
+	FNavPathSharedPtr Ptr;
+	BotController->MoveTo(Request, &Ptr);
 }
 
 
