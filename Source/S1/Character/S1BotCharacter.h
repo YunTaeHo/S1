@@ -100,6 +100,11 @@ public:
 	void PlayHitMontage(AActor* Target);
 	
 
+	/** 땅에 떨어졌을 때 자연스럽게 처리할 수 있는 함수(델리게이트에 묶어서 사용됨) */
+	void OnLand(const FHitResult& Hit);
+
+	UFUNCTION(BlueprintCallable)
+	void UseLandDelegate();
 
 /** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
 public:

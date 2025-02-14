@@ -139,13 +139,6 @@ void AS1MeleeDefaultBot::CallOnBlockEnd()
 void AS1MeleeDefaultBot::JumpToAttackTarget(AActor* Target)
 {
 	UCombatStatics::JumpToVelocity(this, GetActorLocation(), CalculateFutureActorLocation(Target, 1.f));
-	LandedDelegate.AddDynamic(this, &AS1MeleeDefaultBot::OnLand);
-}
-
-void AS1MeleeDefaultBot::OnLand(const FHitResult& Hit)
-{
-	LandedDelegate.Remove(this, TEXT("OnLand"));
-	GetCharacterMovement()->StopMovementImmediately();
 }
 
 FVector AS1MeleeDefaultBot::CalculateFutureActorLocation(AActor* Actor, float Time)

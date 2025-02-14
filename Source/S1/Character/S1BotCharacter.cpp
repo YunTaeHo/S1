@@ -212,6 +212,18 @@ UAbilitySystemComponent* AS1BotCharacter::GetAbilitySystemComponent() const
 	return PS->GetS1AbilitySystemComponent();
 }
 
+void AS1BotCharacter::OnLand(const FHitResult& Hit)
+{
+	LandedDelegate.Remove(this, TEXT("OnLand"));
+	GetCharacterMovement()->StopMovementImmediately();
+}
+
+void AS1BotCharacter::UseLandDelegate()
+{
+	LandedDelegate.AddDynamic(this, &AS1BotCharacter::OnLand);
+}
+
+
 void AS1BotCharacter::JumpToDestination(FVector Location)
 {
 	FVector NewLocation = Location;

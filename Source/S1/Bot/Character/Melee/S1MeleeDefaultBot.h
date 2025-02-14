@@ -12,6 +12,7 @@ enum class ELiosAttack : uint8
     Default,
     ShortRangeAttack,
     LongRangeAttack,
+    SmashAttack,
     SpinningAttack,
 };
 
@@ -75,14 +76,14 @@ public:
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
     void LongRangeAttack(AActor* AttackTarget);
 
+    /** 지면 공격을 수행한다  */
+    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+    void SmashAttack(AActor* AttackTarget);
+
 protected:
     /** 타겟을향해 점프 공격을 수행시켜주자 */
     UFUNCTION(BlueprintCallable)
     void JumpToAttackTarget(AActor* Target);
-    
-    /** 땅에 떨어졌을 때 자연스럽게 애니메이션을 보간시켜주자 */
-    UFUNCTION()
-    void OnLand(const FHitResult& Hit);
 
 private:
     FVector CalculateFutureActorLocation(AActor* Actor, float Time);
