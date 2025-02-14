@@ -49,6 +49,9 @@ public:
     bool IsAttacked() { return bIsAttacked; }
     void SetAttack(bool bAttack) { bIsBlocked = bAttack; }
 
+    bool IsInterrupt() { return bIsInterrupt; }
+    void SetInterrupt(bool bInterrupt) { bIsInterrupt = bInterrupt; }
+
 protected:
     /** 현재 기본 공격을 맞은 상태인지? */
     UPROPERTY(BlueprintReadWrite, Category = "S1")
@@ -57,6 +60,10 @@ protected:
     /** 현재 막는 상태인지? */
     UPROPERTY(BlueprintReadWrite, Category = "S1")
     bool bIsBlocked;
+
+    /** 현재 방해받지 않는 상태인지? */
+    UPROPERTY(BlueprintReadWrite, Category = "S1")
+    bool bIsInterrupt;
 
     /** 현재 그로기 상태인지? */
     UPROPERTY(BlueprintReadWrite, Category = "S1")

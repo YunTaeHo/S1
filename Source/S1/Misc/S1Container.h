@@ -184,6 +184,10 @@ struct FBulletInfo
     /** 내가 발사한 객체는 누군지? */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
     AActor* Instigator;
+
+    /** 몇 번 팀읹? */
+    UPROPERTY(EditAnywhere, Category = "S1|Damage")
+    int32 TeamNumber;
     
 };
 

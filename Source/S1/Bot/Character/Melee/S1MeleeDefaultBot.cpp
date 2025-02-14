@@ -84,7 +84,11 @@ void AS1MeleeDefaultBot::HitReact(EHitResponse HitResponse, AActor* DamageCursor
 	}
 	else
 	{
-		PlayHitMontage(DamageCursor);
+		if (BotCombatSystemComponent->IsInterrupt())
+		{
+			PlayHitMontage(DamageCursor);
+		}
+
 	}
 }
 
@@ -101,7 +105,7 @@ void AS1MeleeDefaultBot::StartBlcok(EBlockingState BlockingState)
 	GetWorld()->GetTimerManager().ClearTimer(HoldBlockTimer);
 	GetCharacterMovement()->StopMovementImmediately();
 	BlockState = EBlockingState::Block;
-	//BotCombatSystemComponent->SetBlock(true);
+	BotCombatSystemComponent->SetBlock(true);
 	GetWorld()->GetTimerManager().SetTimer(HoldBlockTimer, this, &AS1MeleeDefaultBot::EndBlcok, BlockTime, false);
 	PlayBlockStartMontage();
 }
@@ -122,7 +126,7 @@ void AS1MeleeDefaultBot::Blocking(EBlockingState BlockingState)
 void AS1MeleeDefaultBot::EndBlcok()
 {
 	GetWorld()->GetTimerManager().ClearTimer(HoldBlockTimer);
-	//BotCombatSystemComponent->SetBlock(false);
+	BotCombatSystemComponent->SetBlock(false);
 	BlockState = EBlockingState::None;
 	CallOnBlockEnd();
 }

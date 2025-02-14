@@ -147,6 +147,10 @@ void AS1Character::ReturnAttackToken(int32 Amount)
 
 void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
 {
+	if (CombatSystemComponent->IsInterrupt())
+	{
+
+	}
 }
 
 void AS1Character::Die()

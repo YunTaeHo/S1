@@ -149,9 +149,12 @@ void AS1BotCharacter::Attack(AActor* AttackTarget)
 
 void AS1BotCharacter::HitReact(EHitResponse HitResponse, AActor* DamageCursor)
 {
-	GetCharacterMovement()->StopMovementImmediately();
-	BotController->SetStateAsFrozen();
-	PlayHitMontage(DamageCursor);
+	if (BotCombatSystemComponent->IsInterrupt())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+		BotController->SetStateAsFrozen();
+		PlayHitMontage(DamageCursor);
+	}
 }
 
 void AS1BotCharacter::StartAttack(AActor* AttackTarget, int32 TokensNeeded)

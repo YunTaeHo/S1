@@ -5,6 +5,7 @@
 
 #include "Templates/SubclassOf.h"
 #include "GameFramework/Actor.h"
+#include "Interface/TeamInterface.h"
 #include "S1Bullet.generated.h"
 
 /** foward declarations */
@@ -17,7 +18,7 @@ struct FDamageInfo;
  * HitScan이 아닌 투사체들을 사용할 때 사용
  */
 UCLASS()
-class S1_API AS1Bullet : public AActor
+class S1_API AS1Bullet : public AActor, public ITeamInterface
 {
     GENERATED_BODY()
 
@@ -41,7 +42,16 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+public:
+    virtual int32 GetTeamNumber() override { return TeamNumber; }
+
 protected:
+    void ReturnBullet();
+
+protected:
+    UPROPERTY(EditAnywhere, Category = "S1")
+    int32 TeamNumber;
+
     UPROPERTY(BlueprintReadOnly)
     AActor* Target;
 
