@@ -8,7 +8,7 @@
 // @TODO HORK 나중에 제대로 들어가면 다시 Heal값 세팅해주자
 US1HealthSet::US1HealthSet()
     : Super()
-    , Health(50.f)
+    , Health(100.f)
     , MaxHealth(100.f)
     , Damage(0.f)
 {

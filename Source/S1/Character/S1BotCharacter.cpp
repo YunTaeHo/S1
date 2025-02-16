@@ -224,6 +224,27 @@ void AS1BotCharacter::UseLandDelegate()
 }
 
 
+void AS1BotCharacter::SetMovementSpeed(EMovementState MoveState)
+{
+	switch (MoveState)
+	{
+	case EMovementState::Idle:
+		GetCharacterMovement()->MaxWalkSpeed = MovementState.IdleSpeed;
+		break;
+	case EMovementState::Walking:
+		GetCharacterMovement()->MaxWalkSpeed = MovementState.WalkSpeed;
+		break;
+	case EMovementState::Jogging:
+		GetCharacterMovement()->MaxWalkSpeed = MovementState.JogSpeed;
+		break;
+	case EMovementState::Sprinting:
+		GetCharacterMovement()->MaxWalkSpeed = MovementState.SprintSpeed;
+		break;
+	default:
+		break;
+	}
+}
+
 void AS1BotCharacter::JumpToDestination(FVector Location)
 {
 	FVector NewLocation = Location;

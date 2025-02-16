@@ -109,7 +109,7 @@ public:
 /** Behavior Tree 관련 기본 상태(모든 Bot 들이 사용할 수 있도록 설정, 안쓸 거면 안써도 된다) */
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void SetMovementSpeed(EMovementState MoveState) {}
+	virtual void SetMovementSpeed(EMovementState MoveState);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void JumpToDestination(FVector Location);

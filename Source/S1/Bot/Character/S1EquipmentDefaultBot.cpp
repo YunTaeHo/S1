@@ -17,27 +17,6 @@ void AS1EquipmentDefaultBot::BeginPlay()
     Super::BeginPlay();
 }
 
-void AS1EquipmentDefaultBot::SetMovementSpeed(EMovementState MoveState)
-{
-    switch (MoveState)
-    {
-    case EMovementState::Idle:
-        GetCharacterMovement()->MaxWalkSpeed = MovementState.IdleSpeed;
-        break;
-    case EMovementState::Walking:
-        GetCharacterMovement()->MaxWalkSpeed = MovementState.WalkSpeed;
-        break;
-    case EMovementState::Jogging:
-        GetCharacterMovement()->MaxWalkSpeed = MovementState.JogSpeed;
-        break;
-    case EMovementState::Sprinting:
-        GetCharacterMovement()->MaxWalkSpeed = MovementState.SprintSpeed;
-        break;
-    default:
-        break;
-    }
-}
-
 void AS1EquipmentDefaultBot::CallOnAttackEnd()
 {
     OnAttackEnded.Broadcast();
@@ -47,13 +26,20 @@ void AS1EquipmentDefaultBot::CallOnAttackEnd()
 void AS1EquipmentDefaultBot::CallOnEquippedEnded(UAnimMontage* Montage, bool bInterrupted)
 {
     OnEquippedEnded.Broadcast();
-    RemoveDelegates();
+
+    if (Montage)
+    {
+        RemoveDelegates();
+    }
 }
 
 void AS1EquipmentDefaultBot::CallOnUnequippedEnded(UAnimMontage* Montage, bool bInterrupted)
 {
     OnUnEquippedEnded.Broadcast();
-    RemoveDelegates();
+    if (Montage)
+    {
+        RemoveDelegates();
+    }
 }
 
 void AS1EquipmentDefaultBot::NotfiyOnEquippedWeapon(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
@@ -77,24 +63,46 @@ void AS1EquipmentDefaultBot::NotfiyOnUnequippedWeapon(FName NotifyName, const FB
     }
 }
 
-void AS1EquipmentDefaultBot::UnequipWeapon()
+void AS1EquipmentDefaultBot::UnequipWeapon(bool bEndPlayEquipped)
 {
-    UAnimInstance* Anim = GetMesh()->GetAnimInstance();
+    if (bEndPlayEquipped)
+    {
+        if (Weapon)
+        {
+            Weapon->Destroy();
+            GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this]() { OnUnEquippedEnded.Broadcast();}));
+        }
+    }
+    else
+    {
+        UAnimInstance* Anim = GetMesh()->GetAnimInstance();
 
-    Anim->OnMontageEnded.AddDynamic(this, &ThisClass::CallOnUnequippedEnded);
-    Anim->Montage_Play(UnequippedMontage, UnequippedMontagePlayRate);
+        Anim->OnMontageEnded.AddDynamic(this, &ThisClass::CallOnUnequippedEnded);
+        Anim->Montage_Play(UnequippedMontage, UnequippedMontagePlayRate);
 
-    Anim->OnPlayMontageNotifyBegin.AddDynamic(this, &ThisClass::NotfiyOnUnequippedWeapon);
+        Anim->OnPlayMontageNotifyBegin.AddDynamic(this, &ThisClass::NotfiyOnUnequippedWeapon);
+    }
+
 }
 
-void AS1EquipmentDefaultBot::EquipWeapon()
+void AS1EquipmentDefaultBot::EquipWeapon(bool bBeginPlayEquipped)
 {
-    UAnimInstance* Anim = GetMesh()->GetAnimInstance();
+    if (bBeginPlayEquipped)
+    {
+        Weapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
+        Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("weapon_r"));
+        OnEquippedEnded.Broadcast();
+    }
+    else
+    {
+        UAnimInstance* Anim = GetMesh()->GetAnimInstance();
 
-    Anim->OnMontageEnded.AddDynamic(this, &ThisClass::CallOnEquippedEnded);
-    Anim->Montage_Play(EquippedMontage, EquippedMontagePlayRate);
+        Anim->OnMontageEnded.AddDynamic(this, &ThisClass::CallOnEquippedEnded);
+        Anim->Montage_Play(EquippedMontage, EquippedMontagePlayRate);
 
-    Anim->OnPlayMontageNotifyBegin.AddDynamic(this, &ThisClass::NotfiyOnEquippedWeapon);
+        Anim->OnPlayMontageNotifyBegin.AddDynamic(this, &ThisClass::NotfiyOnEquippedWeapon);
+    }
+
 }
 
 void AS1EquipmentDefaultBot::RemoveDelegates()

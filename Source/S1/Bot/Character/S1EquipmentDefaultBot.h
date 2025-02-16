@@ -24,9 +24,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	virtual void SetMovementSpeed(EMovementState MoveState) override;
-
 /** Attack 관련 함수 */
 public:
 	virtual void CallOnAttackEnd() override;
@@ -35,10 +32,10 @@ public:
 /** Equip, Unequip 관련 변수 */
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void UnequipWeapon();
+	virtual void UnequipWeapon(bool bEndPlayEquipped = false);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void EquipWeapon();
+	virtual void EquipWeapon(bool bBeginPlayEquipped = false);
 
 	UFUNCTION(BlueprintCallable)
 	void CallOnEquippedEnded(UAnimMontage* Montage, bool bInterrupted);

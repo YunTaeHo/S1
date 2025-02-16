@@ -150,6 +150,7 @@ void AS1GameModeBase::OnExperienceLoaded(const US1ExperienceDefinition* CurrentE
 		if (PlayerCanRestart(PC))
 		{
 			RestartPlayer(PC);
+			OnPawnHandlerUpdateCompleted.Broadcast();
 		}
 	}
 }

@@ -5,6 +5,8 @@
 #include "UObject/Interface.h"
 #include "TeleportInterface.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTeleportEnd);
+
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)

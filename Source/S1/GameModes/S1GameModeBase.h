@@ -10,6 +10,8 @@
 class US1ExperienceDefinition;
 class US1PawnData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPawnHandlerUpdateCompleted);
+
 /**
  * 
  */
@@ -41,4 +43,8 @@ public:
 	void OnExperienceLoaded(const US1ExperienceDefinition* CurrentExperience);
 	const US1PawnData* GetPawnDataForController(const AController* InController) const;
 	
+	/** PawnHandler의 업데이트가 모두 끝나면 호출시켜주는 델리게이트 */
+	UPROPERTY(BlueprintAssignable)
+	FOnPawnHandlerUpdateCompleted OnPawnHandlerUpdateCompleted;
+
 };

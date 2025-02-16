@@ -52,6 +52,10 @@ public:
     virtual void DamageOnEvent(AActor* DamageCursor, FDamageInfo Info) override;
     virtual void HitReact(EHitResponse HitResponse, AActor* DamageCursor) override;
 
+
+private:
+    void RemoveDelegates();
+
     /** 블록 관련 함수*/
 public:
     UFUNCTION(BlueprintImplementableEvent)

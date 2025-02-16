@@ -106,6 +106,12 @@ void AS1BotController::CleanupPlayerState()
 	LastSeenPlayerState = PlayerState;
 }
 
+void AS1BotController::SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget)
+{
+	Blackboard->SetValueAsObject(TargetEnemyKeyName, TargetEnemy);
+	Blackboard->SetValueAsEnum(StateKeyName, (uint8)EAIState::Attacking);
+}
+
 bool AS1BotController::CanSenseActor(AActor* PerceptionActor, EAISense Sense, FAIStimulus& Stimulus)
 {
 	FActorPerceptionBlueprintInfo PerceptionInfo;

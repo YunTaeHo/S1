@@ -176,38 +176,11 @@ void AS1MeleeDefaultBot::ChaseTarget(AActor* Target)
 	BotController->MoveTo(Request, &Ptr);
 }
 
+void AS1MeleeDefaultBot::RemoveDelegates()
+{
+	UAnimInstance* Anim = GetMesh()->GetAnimInstance();
 
-//void AS1MeleeDefaultBot::NotfiyOnSlashBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
-//{
-//	if (NotifyName == TEXT("Slash"))
-//	{
-//		FVector StartPos = GetActorLocation();
-//		FVector EndPos = StartPos + GetActorForwardVector() * AttackRange;
-//
-//		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-//		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-//
-//		TArray<AActor*> ActorToIgnore;
-//		TArray<FHitResult> Hits;
-//
-//		if (UKismetSystemLibrary::SphereTraceMultiForObjects
-//		(
-//			GetWorld(),
-//			StartPos,
-//			EndPos,
-//			AttackRadius,
-//			ObjectTypes,
-//			false,
-//			ActorToIgnore,
-//			EDrawDebugTrace::Type::ForDuration,
-//			Hits,
-//			true
-//		))
-//		{
-//			UCombatStatics::DamageAllNonTeamMembers(this, Hits, DamageInfos[0]);
-//		}
-//	}
-//}
-
-
+	Anim->OnMontageEnded.RemoveAll(this);
+	Anim->OnPlayMontageNotifyBegin.RemoveAll(this);
+}
 

@@ -15,8 +15,6 @@ enum class EWakinGhost : uint8
     BarrageAttack
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTeleportEnd);
-
 UCLASS()
 class S1_API AS1TeleportBaseBot : public AS1BotCharacter, public ITeleportInterface
 {

@@ -13,10 +13,12 @@ struct FHealStatics
 {
 	/** AttributeSet의 어떤 Attribute를 Capture할 것인지와 어떻게 Capture할지 정의를 담고 있다 */
 	FGameplayEffectAttributeCaptureDefinition BaseHealDef;
-
+	FGameplayEffectAttributeCaptureDefinition BaseMaxHealthDef;
+	
 	FHealStatics()
 	{
 		BaseHealDef = FGameplayEffectAttributeCaptureDefinition(US1CombatSet::GetBaseHealAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
+		BaseMaxHealthDef = FGameplayEffectAttributeCaptureDefinition(US1HealthSet::GetMaxHealthAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 	}
 };
 
@@ -34,6 +36,7 @@ US1HealExecution::US1HealExecution()
 	//	- CombatSet::BaseHeal을 통해 Healing 값을 정의하고,
 	//	  최종 Execute할 때 해당 값을 가져와서 Health에 Healing을 적용한다
 	RelevantAttributesToCapture.Add(HealStatics().BaseHealDef);
+	RelevantAttributesToCapture.Add(HealStatics().BaseMaxHealthDef);
 }
 
 void US1HealExecution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -48,6 +51,12 @@ void US1HealExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 		// 해당 함수 호출을 통해 S1CombatSet의 BaseHeal 값을 가져온다 (혹은 값이 Modifier에 누적되어 있었다면, 최종 계산 결과가 나온다)
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(HealStatics().BaseHealDef, EvaluateParameters, BaseHeal);
 	}
+	float BaseMaxHealth;
+	{
+		FAggregatorEvaluateParameters EvaluateParameters;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(HealStatics().BaseHealDef, EvaluateParameters, BaseMaxHealth);
+
+	}
 
 	const float HealtheBuff = Spec.GetLevel();
 
@@ -58,5 +67,12 @@ void US1HealExecution::Execute_Implementation(const FGameplayEffectCustomExecuti
 		// GameplayEffectCalculation 이후, Modifier로서 추가한다 : 
 		// - 해당 Mdifier는 CombatSet에서 가져온 BaseHeal을 활용하여, HealthSet의 healing에 추가해준다
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(US1HealthSet::GetHealingAttribute(), EGameplayModOp::Additive, HealingDone));
+	}
+	
+	const float MaxHealth = FMath::Max(0.f, HealtheBuff);
+	if (MaxHealth)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(US1HealthSet::GetMaxHealthAttribute(), EGameplayModOp::Override, MaxHealth));
+		UE_LOG(LogTemp, Log, TEXT("%f"), MaxHealth);
 	}
 }

@@ -38,7 +38,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "State")
     virtual void SetStateAsPassive() {};
     UFUNCTION(BlueprintCallable, Category = "State")
-    virtual void SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget) {};
+    virtual void SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget);
     UFUNCTION(BlueprintCallable, Category = "State")
     virtual void SetStateAsInvestigating(FVector Location) {};
     UFUNCTION(BlueprintCallable, Category = "State")
@@ -52,6 +52,8 @@ public:
 public:
     UFUNCTION(BlueprintCallable, Category = "State")
     virtual EAIState GetCurrentState() const { return EAIState::Passive; }
+
+    AActor* GetTargetEnemy() { return TargetEnemy; }
 
 public:
     /** 센서 감지 함수, Update Perception 함수에서 사용*/
