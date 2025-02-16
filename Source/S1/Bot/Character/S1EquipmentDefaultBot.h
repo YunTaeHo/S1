@@ -74,6 +74,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "S1|Equipment")
 	TObjectPtr<AActor> Weapon;
 
+	UPROPERTY(BlueprintReadOnly, Category = "S1|Equipment")
+	bool bHasWeapon;
 
 
 protected:

@@ -48,6 +48,7 @@ void AS1EquipmentDefaultBot::NotfiyOnEquippedWeapon(FName NotifyName, const FBra
     {
         Weapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
         Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("weapon_r"));
+        bHasWeapon = true;
     }
     
 }
@@ -59,6 +60,7 @@ void AS1EquipmentDefaultBot::NotfiyOnUnequippedWeapon(FName NotifyName, const FB
         if (Weapon)
         {
             Weapon->Destroy();
+            bHasWeapon = false;
         }
     }
 }
@@ -71,6 +73,7 @@ void AS1EquipmentDefaultBot::UnequipWeapon(bool bEndPlayEquipped)
         {
             Weapon->Destroy();
             GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this]() { OnUnEquippedEnded.Broadcast();}));
+            bHasWeapon = false;
         }
     }
     else
@@ -92,6 +95,7 @@ void AS1EquipmentDefaultBot::EquipWeapon(bool bBeginPlayEquipped)
         Weapon = GetWorld()->SpawnActor<AActor>(WeaponClass);
         Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("weapon_r"));
         OnEquippedEnded.Broadcast();
+        bHasWeapon = true;
     }
     else
     {

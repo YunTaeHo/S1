@@ -77,4 +77,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
 	TObjectPtr<US1CombatSystemComponent> CombatSystemComponent;
 
+	/** 애니메이션 관련 변수 */
+protected:
+	UPROPERTY(BlueprintReadWrite)
+	bool IsSprinting;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool IsCrouching;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool IsFiring;
+
+
 };
