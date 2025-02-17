@@ -14,6 +14,7 @@
 class US1PawnHandler;
 class US1CameraComponent;
 class US1HealthComponent;
+class US1CombatSystemComponent;
 struct FDamageInfo;
 
 
@@ -77,7 +78,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
 	TObjectPtr<US1CombatSystemComponent> CombatSystemComponent;
 
-	/** 애니메이션 관련 변수 */
+	/** 모든 애니메이션 관련 함수, 변수 */
+public:
+	void SetTurnRate(float InRate) { TurnRate = InRate; }
+
 protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool IsSprinting;
@@ -88,5 +92,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool IsFiring;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool IsDodging;
+		
+	UPROPERTY(BlueprintReadWrite)
+	float TurnRate;
 
 };

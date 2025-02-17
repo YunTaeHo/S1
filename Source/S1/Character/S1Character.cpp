@@ -8,6 +8,7 @@
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Combat/S1CombatSystemComponent.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1Character)
 
 AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
@@ -38,6 +39,10 @@ AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
 		CombatSystemComponent = CreateDefaultSubobject<US1CombatSystemComponent>(TEXT("CombatSystemComponent"));
 	}
 
+	bIsCrouched = true;
+	//GetCharacterMovement()->CrouchedHalfHeight = 600.f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 250.f;
+	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	
 }
 

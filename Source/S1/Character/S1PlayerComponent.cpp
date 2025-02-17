@@ -15,6 +15,7 @@
 #include "Input/S1InputComponent.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Character/S1PawnData.h"
+#include "Character/S1Character.h"
 #include "GameFramework/Character.h"
 #include "Equipment/S1QuickBarComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
@@ -317,8 +318,15 @@ void US1PlayerComponent::Input_LookMouse(const FInputActionValue& InputActionVal
     const FVector2D Value = InputActionValue.Get<FVector2D>();
     if (Value.X != 0.f)
     {
+        // 애니메이션 제어
+        if (AS1Character* Character = Cast<AS1Character>(Pawn))
+        {
+            Character->SetTurnRate(Value.X);
+        }
+
         // X : Yaw값
         // Camera에 대해 Yaw 값 적용
+
         Pawn->AddControllerYawInput(Value.X);
     }
 
