@@ -100,6 +100,13 @@ void US1QuickBarComponent::AddItemToSlot(int32 SlotIndex, US1InventoryItemInstan
         if (Slots[SlotIndex] == nullptr)
         {
             Slots[SlotIndex] = Item;
+            OnSlotChanged.Broadcast(SlotIndex, false);
+            //FLyraQuickBarSlotsChangedMessage Message;
+            //Message.Owner = GetOwner();
+            //Message.Slots = Slots;
+
+            //UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(this);
+            //MessageSystem.BroadcastMessage(TAG_Lyra_QuickBar_Message_SlotsChanged, Message);
         }
     }
 }
@@ -112,6 +119,13 @@ void US1QuickBarComponent::SetSlotActivate(int32 SlotIndex)
         UnequipItemSlot();
         ActiveSlotIndex = SlotIndex;
         EquipItemSlot();
+        OnSlotChanged.Broadcast(SlotIndex, false);
+        //FLyraQuickBarActiveIndexChangedMessage Message;
+        //Message.Owner = GetOwner();
+        //Message.ActiveIndex = ActiveSlotIndex;
+
+        //UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(this);
+        //MessageSystem.BroadcastMessage(TAG_Lyra_QuickBar_Message_ActiveIndexChanged, Message);
     }
 }
 
@@ -122,4 +136,53 @@ TSubclassOf<US1CameraMode> US1QuickBarComponent::GetZoomMode()
 
 
 
+US1InventoryItemInstance* US1QuickBarComponent::GetActiveSlotItem() const
+{
+    return Slots.IsValidIndex(ActiveSlotIndex) ? Slots[ActiveSlotIndex] : nullptr;
+}
 
+int32 US1QuickBarComponent::GetNextFreeItemSlot() const
+{
+    int32 SlotIndex = 0;
+    for (const TObjectPtr<US1InventoryItemInstance>& ItemPtr : Slots)
+    {
+        if (ItemPtr == nullptr)
+        {
+            return SlotIndex;
+        }
+        ++SlotIndex;
+    }
+
+    return INDEX_NONE;
+}
+
+
+US1InventoryItemInstance* US1QuickBarComponent::RemoveItemFromSlot(int32 SlotIndex)
+{
+    US1InventoryItemInstance* Result = nullptr;
+
+    if (ActiveSlotIndex == SlotIndex)
+    {
+        UnequipItemSlot();
+        ActiveSlotIndex = -1;
+    }
+
+    if (Slots.IsValidIndex(SlotIndex))
+    {
+        Result = Slots[SlotIndex];
+
+        if (Result != nullptr)
+        {
+            Slots[SlotIndex] = nullptr;
+            OnSlotChanged.Broadcast(SlotIndex, true);
+            //FLyraQuickBarSlotsChangedMessage Message;
+            //Message.Owner = GetOwner();
+            //Message.Slots = Slots;
+
+            //UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(this);
+            //MessageSystem.BroadcastMessage(TAG_Lyra_QuickBar_Message_SlotsChanged, Message);
+        }
+    }
+
+    return Result;
+}

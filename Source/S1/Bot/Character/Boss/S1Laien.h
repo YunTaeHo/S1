@@ -10,9 +10,11 @@
 UENUM(BlueprintType)
 enum class ES1LaienState : uint8
 {
-    Default,
     BasicAttack,
-    BarrageAttack
+    KnockbackAttack,
+    JumpAttack,
+    ThrowAttack,
+    BossSkill
 };
 
 UCLASS()

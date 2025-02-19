@@ -20,5 +20,6 @@ public:
     US1GameplayAbility_FromEquipment(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     US1EquipmentInstance* GetAssociatedEquipment() const;
+    UFUNCTION(BlueprintCallable)
     US1InventoryItemInstance* GetAssociatedItem() const;
 }; 

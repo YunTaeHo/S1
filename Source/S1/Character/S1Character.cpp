@@ -9,6 +9,7 @@
 #include "Combat/S1CombatSystemComponent.h"
 #include "AbilitySystem/Attributes/S1HealthSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1Character)
 
 AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
@@ -32,6 +33,8 @@ AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
 	// HealthComponent 생성
 	{
 		HealthComponent = CreateDefaultSubobject<US1HealthComponent>(TEXT("HealthComponent"));
+		HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
+		HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 	}
 
 	// CombatSystemComponent 생성
@@ -150,6 +153,25 @@ void AS1Character::ReturnAttackToken(int32 Amount)
 	CombatSystemComponent->ReturnAttackToken(Amount);
 }
 
+bool AS1Character::IsFalling()
+{
+	return GetCharacterMovement()->IsFalling();
+}
+
+void AS1Character::SetSprinting()
+{
+	if (IsSprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 290.f;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	}
+
+	IsSprinting = !IsSprinting;
+}
+
 void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
 {
 	if (CombatSystemComponent->IsInterrupt())
@@ -158,8 +180,39 @@ void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
 	}
 }
 
+void AS1Character::OnDeathStarted(AActor* OwningActor)
+{
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true);
+	}
+
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	check(CapsuleComp);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	UCharacterMovementComponent* MoveComp = CastChecked<UCharacterMovementComponent>(GetCharacterMovement());
+	MoveComp->StopMovementImmediately();
+	MoveComp->DisableMovement();
+}
+
+void AS1Character::OnDeathFinished(AActor* OwningActor)
+{
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::Die);
+}
+
 void AS1Character::Die()
 {
+	if (US1AbilitySystemComponent* S1ASC = CastChecked<US1AbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		if (S1ASC->GetAvatarActor() == this)
+		{
+			PawnHandlerComponent->UninitializeAbilitySystem();
+		}
+	}
+
+	SetActorHiddenInGame(true);
 }
 
 void AS1Character::Attack(AActor* AttackTarget)

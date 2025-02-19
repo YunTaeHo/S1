@@ -22,6 +22,16 @@ public:
 public:
     bool IsSuperArmored() const { return bSuperArmor; }
 
+    /** 죽음 관련 함수 */
+protected:
+    /** 죽음 이전에 호출할 이펙트, 시퀀스 위젯 를 처리한다 */
+    UFUNCTION()
+    virtual void OnDeathStarted(AActor* OwningActor) {};
+
+    /** 죽음이 끝난 후 이펙트, 위젯, 맵 이동을 수행한다 */
+    UFUNCTION()
+    virtual void OnDeathFinished(AActor* OwningActor) {};
+
 protected:
     UPROPERTY(BlueprintReadOnly, Category = "S1")
     bool bSuperArmor = false;

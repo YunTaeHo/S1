@@ -43,6 +43,14 @@ struct FS1GameplayTags
     FGameplayTag InputTag_Jump;
     FGameplayTag InputTag_Zoom;
 
+    FGameplayTag InputTag_Sprint;
+    FGameplayTag InputTag_Crouch;
+
+   
+    FGameplayTag Status_Death_Dying;
+    FGameplayTag Status_Death_Dead;
+    
+
 
 private:
     static FS1GameplayTags GameplayTags;

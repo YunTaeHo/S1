@@ -55,6 +55,9 @@ public:
 	virtual void Attack(AActor* AttackTarget) override;
 	virtual void HitReact(EHitResponse HitResponse, AActor* DamageCursor) override;
 
+protected:
+	virtual void OnDeathStarted(AActor* OwningActor);
+	virtual void OnDeathFinished(AActor* OwningActor);
 
 /** 공격 토큰 관련 함수*/
 public:
@@ -62,6 +65,10 @@ public:
 	bool ReserveAttackToken(int32 Amount);
 	UFUNCTION(BlueprintCallable)
 	void ReturnAttackToken(int32 Amount);
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void DodgeSystem();
 
 
 /** 필요한 컴포넌트들 */
@@ -81,6 +88,12 @@ protected:
 	/** 모든 애니메이션 관련 함수, 변수 */
 public:
 	void SetTurnRate(float InRate) { TurnRate = InRate; }
+	bool IsCrouch() { return IsCrouching; }
+	void SetCrouched(bool bCrouch) { IsCrouching = bCrouch; }
+	bool IsFalling();
+
+	void SetSprinting();
+
 
 protected:
 	UPROPERTY(BlueprintReadWrite)
@@ -97,5 +110,11 @@ protected:
 		
 	UPROPERTY(BlueprintReadWrite)
 	float TurnRate;
+
+	UPROPERTY(BlueprintReadWrite)
+	EPlayerStance PlayerStance;
+
+	UPROPERTY(BlueprintReadWrite)
+	ELandState LandState;
 
 };

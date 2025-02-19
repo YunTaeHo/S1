@@ -30,6 +30,14 @@ void FS1GameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(InputTag_Look_Mouse, "InputTag.Look.Mouse", "");
 	AddTag(InputTag_Jump, "InputTag.Jump", "");
 	AddTag(InputTag_Zoom, "InputTag.Zoom", "");
+
+	AddTag(InputTag_Sprint, "InputTag.Sprint", "");
+	AddTag(InputTag_Crouch, "InputTag.Crouch", "");
+
+
+	AddTag(Status_Death_Dying, "Status.Death.Dying", "");
+	AddTag(Status_Death_Dead, "Status.Death.Dead", "");
+
 }
 
 

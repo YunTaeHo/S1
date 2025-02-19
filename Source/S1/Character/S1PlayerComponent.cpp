@@ -18,6 +18,7 @@
 #include "Character/S1Character.h"
 #include "GameFramework/Character.h"
 #include "Equipment/S1QuickBarComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1PlayerComponent)
 
 /** FeatureName 정의 : static member variable 초기화 */
@@ -269,7 +270,9 @@ void US1PlayerComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
                     }
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
-                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Jump, ETriggerEvent::Triggered, this, &ThisClass::Input_Jump, false);
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Sprint, ETriggerEvent::Started, this, &ThisClass::Input_Sprint, false);
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Sprint, ETriggerEvent::Completed, this, &ThisClass::Input_Sprint, false);
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Crouch, ETriggerEvent::Started, this, &ThisClass::Input_Crouch, false);
                 }
             }
         }
@@ -338,13 +341,62 @@ void US1PlayerComponent::Input_LookMouse(const FInputActionValue& InputActionVal
     }
 }
 
-void US1PlayerComponent::Input_Jump(const FInputActionValue& InputActionValue)
+void US1PlayerComponent::Input_Sprint(const FInputActionValue& InputActionValue)
 {
-    if (ACharacter* Character = GetPawn<ACharacter>())
+    if (APawn* Pawn = GetPawn<APawn>())
     {
-        Character->Jump();
+        if (AS1Character* S1Character = Cast<AS1Character>(Pawn))
+        {
+            S1Character->SetSprinting();
+        }
     }
-    
+}
+
+void US1PlayerComponent::Input_Crouch(const FInputActionValue& InputActionValue)
+{
+    if (APawn* Pawn = GetPawn<APawn>())
+    {
+        if (AS1Character* S1Character = Cast<AS1Character>(Pawn))
+        {
+            if (S1Character->IsFalling())
+            {
+                return;
+            }
+
+            if (S1Character->IsCrouch())
+            {
+                FVector Location = S1Character->GetActorLocation();
+                FRotator Rotation = S1Character->GetActorRotation();
+                TArray<AActor*> ActorToIgnore;
+                FHitResult Hit;
+
+                // 위에 장애물이 있어 Crouchㄹ를 풀 수 없는 상황이라면 풀지 말아야함
+                if (!UKismetSystemLibrary::LineTraceSingle
+                (
+                    GetWorld(),
+                    Location,
+                    Location + FRotationMatrix(Rotation).GetScaledAxis(EAxis::Z),
+                    ETraceTypeQuery::TraceTypeQuery1,
+                    false,
+                    ActorToIgnore,
+                    EDrawDebugTrace::ForDuration,
+                    Hit,
+                    true
+                ))
+                {
+                    S1Character->UnCrouch();
+                    S1Character->SetCrouched(false);
+                }
+            }
+            else
+            {
+                S1Character->Crouch();
+                S1Character->SetCrouched(true);
+            }
+
+        }
+    }
+
 }
 
 void US1PlayerComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)

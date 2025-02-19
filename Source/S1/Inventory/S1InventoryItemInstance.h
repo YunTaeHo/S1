@@ -33,7 +33,9 @@ public:
     }
 
     /** Stat에서 Tag와 Count를 통해 생성/삭제 시켜준다 */
+    UFUNCTION(BlueprintCallable)
     void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
+    UFUNCTION(BlueprintCallable)
     void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
 
     /** Stat에서 해당 태그를 가지고 있는 지 확인한다 */

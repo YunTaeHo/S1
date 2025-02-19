@@ -11,6 +11,8 @@ class US1InventoryItemInstance;
 class US1EquipmentInstance;
 class US1EquipmentManagerComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSlotChanged, int32, SlotIndex, bool, IsEmpty);
+
 /*
  * HUD의 QuickBar
  *  - MMORPG에서 ShorCut HUD
@@ -41,7 +43,25 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetSlotActivate(int32 SlotIndex);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure = false)
+    TArray<US1InventoryItemInstance*> GetSlots() const
+    {
+        return Slots;
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure = false)
+    int32 GetActiveSlotIndex() const { return ActiveSlotIndex; }
+
     TSubclassOf<US1CameraMode> GetZoomMode();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure = false)
+    US1InventoryItemInstance* GetActiveSlotItem() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintPure = false)
+    int32 GetNextFreeItemSlot() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
+    US1InventoryItemInstance* RemoveItemFromSlot(int32 SlotIndex);
 
     /** HUD QuickBar Slot 개수 */
     UPROPERTY()
@@ -59,5 +79,9 @@ public:
     /** 현재 장착한 장비 정보 */
     UPROPERTY()
     TObjectPtr<US1EquipmentInstance> EquippedItem;
+
+    /** Slot이 바뀔때마다 호출, Index에 맞는 것만 바꿔주자 */
+    UPROPERTY(BlueprintAssignable)
+    FOnSlotChanged OnSlotChanged;
 
 }; 

@@ -13,6 +13,7 @@ template<class TClass> class TSubclassOf;
 struct FS1MappableConfigPair;
 struct FInputActionValue;
 class UInputComponent;
+class AS1Character;
 
 /*
  *  카메라, 입력 등 플레이어가 제어하는 시스템의 초기화를 처리하는 컴포넌트
@@ -57,7 +58,8 @@ public:
     void InitializePlayerInput(UInputComponent* PlayerInputComponent);
     void Input_Move(const FInputActionValue& InputActionValue);
     void Input_LookMouse(const FInputActionValue& InputActionValue);
-    void Input_Jump(const FInputActionValue& InputActionValue);
+    void Input_Sprint(const FInputActionValue& InputActionValue);
+    void Input_Crouch(const FInputActionValue& InputActionValue);
     void Input_AbilityInputTagPressed(FGameplayTag InputTag);
     void Input_AbilityInputTagReleased(FGameplayTag InputTag);
         
@@ -77,5 +79,6 @@ public:
 
     /** Spec handle for the last ability to set a camera mode. */
     FGameplayAbilitySpecHandle AbilityCameraModeOwningSpecHandle;
+
 
 }; 

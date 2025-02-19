@@ -53,6 +53,7 @@ enum class EHitResponse : uint8
 UENUM(BlueprintType)
 enum class EPlayerStance : uint8
 {
+    Unarmod,
     Pistol,
     Rifle,
     RPG,
@@ -69,6 +70,14 @@ enum class EAttackType : uint8
     Projectile,
     Grenade,
     Magic,
+};
+
+UENUM(BlueprintType)
+enum class ELandState : uint8
+{
+    NormalLand,
+    SoftLand,
+    HeavyLand,
 };
 
 /*

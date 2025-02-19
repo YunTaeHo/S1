@@ -3,6 +3,7 @@
 
 #include "S1HealthComponent.h"
 #include "S1LogChannel.h"
+#include "S1GameplayTags.h"
 #include "GameplayEffect.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
@@ -86,12 +87,15 @@ void US1HealthComponent::InitializeWithAbilitySystem(US1AbilitySystemComponent* 
     // HealthSet의 HealthAttribute가 업데이트 될 때마다 호출할 콜백으로 멤버메서드 HandleHealthChanged를 등록하자
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(US1HealthSet::GetHealthAttribute()).AddUObject(this, &ThisClass::HandleHealthChanged);
 
+    ClearGameplayTags();
+
     // 초기화 한번 해줬으니 Broadcast 호출
     OnHealthChanged.Broadcast(this, HealthSet->GetHealth(), HealthSet->GetHealth(), nullptr);
 }
 
 void US1HealthComponent::UnInitializeWithAbilitySystem()
 {
+    ClearGameplayTags();
     AbilitySystemComponent = nullptr;
     HealthSet = nullptr;
 }
@@ -113,4 +117,60 @@ void US1HealthComponent::HandleHealthChanged(const FOnAttributeChangeData& Chang
     OnHealthChanged.Broadcast(this, ChangeData.OldValue, ChangeData.NewValue, GetInstigatorFromAttrChangeData(ChangeData));
 }
 
+void US1HealthComponent::StartDeath()
+{
+    if (DeathState != ELyraDeathState::NotDead)
+    {
+        return;
+    }
 
+    DeathState = ELyraDeathState::DeathStarted;
+
+    if (AbilitySystemComponent)
+    {
+        const FS1GameplayTags& GameplayTags = FS1GameplayTags::Get();
+        AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Death_Dying, 1);
+    }
+
+    AActor* Owner = GetOwner();
+    check(Owner);
+
+    OnDeathStarted.Broadcast(Owner);
+
+    Owner->ForceNetUpdate();
+}
+
+void US1HealthComponent::FinishDeath()
+{
+    if (DeathState != ELyraDeathState::DeathStarted)
+    {
+        return;
+    }
+
+    DeathState = ELyraDeathState::DeathFinished;
+
+    if (AbilitySystemComponent)
+    {
+        const FS1GameplayTags& GameplayTags = FS1GameplayTags::Get();
+        AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Death_Dead, 1);
+    }
+
+    AActor* Owner = GetOwner();
+    check(Owner);
+
+    OnDeathFinished.Broadcast(Owner);
+
+    Owner->ForceNetUpdate();
+}
+
+
+void US1HealthComponent::ClearGameplayTags()
+{
+    if (AbilitySystemComponent)
+    {
+        const FS1GameplayTags& GameplayTags = FS1GameplayTags::Get();
+
+        AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Death_Dying, 0);
+        AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Death_Dead, 0);
+    }
+}
