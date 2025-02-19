@@ -45,7 +45,6 @@ struct FS1GameplayTags
 
     FGameplayTag InputTag_Sprint;
     FGameplayTag InputTag_Crouch;
-
    
     FGameplayTag Status_Death_Dying;
     FGameplayTag Status_Death_Dead;

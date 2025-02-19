@@ -42,6 +42,19 @@ AS1Character::AS1Character(const FObjectInitializer& ObjectInitializer)
 		CombatSystemComponent = CreateDefaultSubobject<US1CombatSystemComponent>(TEXT("CombatSystemComponent"));
 	}
 
+	
+	// 퀵 슬롯 3개 메쉬 
+	{
+		PistolMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SubWeapon"));
+		PistolMeshComp->SetupAttachment(GetMesh(), TEXT("thigh_rSocket"));
+		
+		MainGunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MainWeapon"));
+		MainGunMeshComp->SetupAttachment(GetMesh(), TEXT("RifleHost_Socket"));
+		
+		MeleeComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeleeWeapon"));
+		MeleeComponent->SetupAttachment(GetMesh(), TEXT("spine_03"));
+	}
+
 	bIsCrouched = true;
 	//GetCharacterMovement()->CrouchedHalfHeight = 600.f;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 250.f;

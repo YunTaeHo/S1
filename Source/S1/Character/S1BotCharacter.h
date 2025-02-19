@@ -150,12 +150,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Attack")
 	TObjectPtr<US1BotCombatSystemComponent> BotCombatSystemComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Attack")
-	TObjectPtr<USphereComponent> Head;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Attack")
-	TObjectPtr<UBoxComponent> Body;
-
 	/** 보스는 위젯을 따로 빼서 사용해야함 */
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")

@@ -10,6 +10,7 @@
 /** foward declaractions */
 class US1EquipmentInstance;
 class US1AbilitySet;
+class UAnimMontage;
 
 USTRUCT(BlueprintType)
 struct FS1EquipmentActorToSpawn
@@ -51,4 +52,5 @@ public:
     /** 장착을 통해 부여 가능한 Ability Set */
     UPROPERTY(EditDefaultsOnly, Category = "Equipment")
     TArray<TObjectPtr<US1AbilitySet>> AbilitySetsToGrant;
+
 }; 

@@ -369,13 +369,14 @@ void US1PlayerComponent::Input_Crouch(const FInputActionValue& InputActionValue)
                 FRotator Rotation = S1Character->GetActorRotation();
                 TArray<AActor*> ActorToIgnore;
                 FHitResult Hit;
+                float CrouchSize = 100.f;
 
-                // 위에 장애물이 있어 Crouchㄹ를 풀 수 없는 상황이라면 풀지 말아야함
+                // 위에 장애물이 있어 Crouch를 풀 수 없는 상황이라면 풀지 말아야함
                 if (!UKismetSystemLibrary::LineTraceSingle
                 (
                     GetWorld(),
                     Location,
-                    Location + FRotationMatrix(Rotation).GetScaledAxis(EAxis::Z),
+                    Location + FRotationMatrix(Rotation).GetScaledAxis(EAxis::Z) * CrouchSize,
                     ETraceTypeQuery::TraceTypeQuery1,
                     false,
                     ActorToIgnore,

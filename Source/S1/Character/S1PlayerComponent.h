@@ -62,8 +62,6 @@ public:
     void Input_Crouch(const FInputActionValue& InputActionValue);
     void Input_AbilityInputTagPressed(FGameplayTag InputTag);
     void Input_AbilityInputTagReleased(FGameplayTag InputTag);
-        
-
     void SetAbilityCameraMode(TSubclassOf<US1CameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle);
     void ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle);
   

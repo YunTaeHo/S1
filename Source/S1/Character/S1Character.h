@@ -15,6 +15,7 @@ class US1PawnHandler;
 class US1CameraComponent;
 class US1HealthComponent;
 class US1CombatSystemComponent;
+class USkeletalMeshComponent;
 struct FDamageInfo;
 
 
@@ -84,6 +85,23 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
 	TObjectPtr<US1CombatSystemComponent> CombatSystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
+	TObjectPtr<USkeletalMeshComponent> PistolMeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
+	TObjectPtr<USkeletalMeshComponent> MainGunMeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
+	TObjectPtr<USkeletalMeshComponent> MeleeComponent;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	USkeletalMeshComponent* GetPistolMeshComp() { return PistolMeshComp; }
+	UFUNCTION(BlueprintCallable)
+	USkeletalMeshComponent* GetMainGunMeshComp() { return MainGunMeshComp; }
+	UFUNCTION(BlueprintCallable)
+	USkeletalMeshComponent* GetMeleeComponent() { return MeleeComponent; }
 
 	/** 모든 애니메이션 관련 함수, 변수 */
 public:

@@ -36,16 +36,6 @@ AS1BotCharacter::AS1BotCharacter(const FObjectInitializer& ObjectInitializer)
 	// BotCombatSystemComponent 생성 
 	BotCombatSystemComponent = ObjectInitializer.CreateDefaultSubobject<US1BotCombatSystemComponent>(this, TEXT("BotCombatSystemComponent"));
 
-	// Head 충돌체 생성
-	Head = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("Head"));
-	Head->SetCollisionProfileName(TEXT("Enemy"));
-	Head->SetupAttachment(GetMesh());
-
-	// Body 충돌체 생성 
-	Body = ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, TEXT("Body"));
-	Body->SetCollisionProfileName(TEXT("Enemy"));
-	Body->SetupAttachment(GetMesh());
-
 	// Widget(3D) 생성
 	Widget = ObjectInitializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("Widget"));
 	Widget->SetupAttachment(GetMesh());
@@ -128,8 +118,6 @@ void AS1BotCharacter::Die()
 		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 
-	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	BotController->GetBrainComponent()->StopLogic(TEXT("Bot Character Die"));
 	BotController->SetStateAsDead();

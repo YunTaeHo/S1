@@ -34,7 +34,6 @@ void FS1GameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(InputTag_Sprint, "InputTag.Sprint", "");
 	AddTag(InputTag_Crouch, "InputTag.Crouch", "");
 
-
 	AddTag(Status_Death_Dying, "Status.Death.Dying", "");
 	AddTag(Status_Death_Dead, "Status.Death.Dead", "");
 
