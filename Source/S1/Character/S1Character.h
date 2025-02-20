@@ -113,7 +113,7 @@ public:
 	bool IsSprinting() { return bIsSprinting; }
 
 
-	void SetSprinting();
+	void SetSprinting(bool SprintStart = true);
 
 
 protected:

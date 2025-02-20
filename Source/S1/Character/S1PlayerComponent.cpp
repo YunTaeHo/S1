@@ -388,11 +388,13 @@ void US1PlayerComponent::Input_Sprint(const FInputActionValue& InputActionValue)
             // 웅크리기 중이거나 점프 중이면 달리기 실행 불가
             if (S1Character->IsCrouching() || S1Character->IsFalling())
             {
+                // 스프린트를 해제
+                S1Character->SetSprinting(false);
                 return;
             }
 
             // 스프린트를 실행
-            S1Character->SetSprinting();
+            S1Character->SetSprinting(true);
         }
     }
 }

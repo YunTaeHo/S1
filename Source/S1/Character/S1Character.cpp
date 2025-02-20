@@ -171,18 +171,18 @@ bool AS1Character::IsFalling()
 	return GetCharacterMovement()->IsFalling();
 }
 
-void AS1Character::SetSprinting()
+void AS1Character::SetSprinting(bool SprintStart)
 {
-	if (bIsSprinting)
+	if (bIsSprinting && !SprintStart)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 290.f;
+		bIsSprinting = false;
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		bIsSprinting = true;
 	}
-
-	bIsSprinting = !bIsSprinting;
 }
 
 void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
