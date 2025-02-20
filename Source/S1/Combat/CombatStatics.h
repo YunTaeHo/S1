@@ -61,6 +61,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	static void JumpToVelocity(AActor* Owner, FVector StartPos, FVector EndPos, float ZVelocity = 100.f, bool XYOverride = true, bool ZOverride = true);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	static bool IsInvis(AActor* HitActor);
+
 
 private:
 	static UAbilitySystemComponent* GetAbilitySystem(AActor* Actor);

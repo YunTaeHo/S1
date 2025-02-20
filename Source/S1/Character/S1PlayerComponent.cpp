@@ -270,6 +270,7 @@ void US1PlayerComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
                     }
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
+                    S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Jump, ETriggerEvent::Started, this, &ThisClass::Input_Jump, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Sprint, ETriggerEvent::Started, this, &ThisClass::Input_Sprint, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Sprint, ETriggerEvent::Completed, this, &ThisClass::Input_Sprint, false);
                     S1IC->BindNativeActions(InputConfig, GameplayTags.InputTag_Crouch, ETriggerEvent::Started, this, &ThisClass::Input_Crouch, false);
@@ -341,12 +342,56 @@ void US1PlayerComponent::Input_LookMouse(const FInputActionValue& InputActionVal
     }
 }
 
+void US1PlayerComponent::Input_Jump(const FInputActionValue& InputActionValue)
+{
+    if (APawn* Pawn = GetPawn<APawn>())
+    {
+        if (AS1Character* S1Character = Cast<AS1Character>(Pawn))
+        {
+            // 구르기 or 회피중이면 점프하지 못하도록 설정
+            if (S1Character->IsDodging())
+            {
+                return;
+            }
+
+            // 웅크리기를 실행하는 도중에 
+            if (S1Character->IsCrouching())
+            {
+                // 일어나서 점프했을 때 머리에 뭐가 있지 않다면
+                if (PossibleAction(S1Character, 200.f))
+                {
+                    // 점프한다
+                    S1Character->Jump();
+                }
+            }
+            // 일어나있다면
+            else
+            {
+                // 아주 가까운 곳에 뭐가 있지 않다면
+                if (PossibleAction(S1Character, 50.f))
+                {
+                    // 점프한다
+                    S1Character->Jump();
+                }
+            }
+            
+        }
+    }
+}
+
 void US1PlayerComponent::Input_Sprint(const FInputActionValue& InputActionValue)
 {
     if (APawn* Pawn = GetPawn<APawn>())
     {
         if (AS1Character* S1Character = Cast<AS1Character>(Pawn))
         {
+            // 웅크리기 중이거나 점프 중이면 달리기 실행 불가
+            if (S1Character->IsCrouching() || S1Character->IsFalling())
+            {
+                return;
+            }
+
+            // 스프린트를 실행
             S1Character->SetSprinting();
         }
     }
@@ -358,39 +403,27 @@ void US1PlayerComponent::Input_Crouch(const FInputActionValue& InputActionValue)
     {
         if (AS1Character* S1Character = Cast<AS1Character>(Pawn))
         {
-            if (S1Character->IsFalling())
+            // 떨어지는 중이거나 달리기 중이라면 웅크리기 실행 불가
+            if (S1Character->IsFalling() || S1Character->IsSprinting())
             {
                 return;
             }
 
-            if (S1Character->IsCrouch())
+            // 웅크리는 중이라면
+            if (S1Character->IsCrouching())
             {
-                FVector Location = S1Character->GetActorLocation();
-                FRotator Rotation = S1Character->GetActorRotation();
-                TArray<AActor*> ActorToIgnore;
-                FHitResult Hit;
-                float CrouchSize = 100.f;
-
-                // 위에 장애물이 있어 Crouch를 풀 수 없는 상황이라면 풀지 말아야함
-                if (!UKismetSystemLibrary::LineTraceSingle
-                (
-                    GetWorld(),
-                    Location,
-                    Location + FRotationMatrix(Rotation).GetScaledAxis(EAxis::Z) * CrouchSize,
-                    ETraceTypeQuery::TraceTypeQuery1,
-                    false,
-                    ActorToIgnore,
-                    EDrawDebugTrace::ForDuration,
-                    Hit,
-                    true
-                ))
+                // 위에 장애물이 없을 경우
+                if (PossibleAction(S1Character, 100.f))
                 {
+                    // 웅크리기를 해제한다
                     S1Character->UnCrouch();
                     S1Character->SetCrouched(false);
                 }
             }
+            // 일어나있다면
             else
             {
+                // 웅크리기를 실행한다
                 S1Character->Crouch();
                 S1Character->SetCrouched(true);
             }
@@ -444,5 +477,32 @@ void US1PlayerComponent::ClearAbilityCameraMode(const FGameplayAbilitySpecHandle
         AbilityCameraMode = nullptr;
         AbilityCameraModeOwningSpecHandle = FGameplayAbilitySpecHandle();
     }
+}
+
+bool US1PlayerComponent::PossibleAction(AActor* Actor, float ActionSizeZ)
+{
+    FVector Location = Actor->GetActorLocation();
+    FRotator Rotation = Actor->GetActorRotation();
+    TArray<AActor*> ActorToIgnore;
+    FHitResult Hit;
+
+    // 위에 장애물이 있어 Crouch를 풀 수 없는 상황이라면 풀지 말아야함
+    if (!UKismetSystemLibrary::LineTraceSingle
+    (
+        GetWorld(),
+        Location,
+        Location + FRotationMatrix(Rotation).GetScaledAxis(EAxis::Z) * ActionSizeZ,
+        ETraceTypeQuery::TraceTypeQuery1,
+        false,
+        ActorToIgnore,
+        EDrawDebugTrace::ForDuration,
+        Hit,
+        true
+    ))
+    {
+        return true;
+    }
+
+    return false;
 }
 

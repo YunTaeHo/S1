@@ -106,25 +106,28 @@ public:
 	/** 모든 애니메이션 관련 함수, 변수 */
 public:
 	void SetTurnRate(float InRate) { TurnRate = InRate; }
-	bool IsCrouch() { return IsCrouching; }
-	void SetCrouched(bool bCrouch) { IsCrouching = bCrouch; }
+	bool IsCrouching() { return bIsCrouching; }
+	void SetCrouched(bool bCrouch) { bIsCrouching = bCrouch; }
 	bool IsFalling();
+	bool IsDodging() { return bIsDodging; }
+	bool IsSprinting() { return bIsSprinting; }
+
 
 	void SetSprinting();
 
 
 protected:
 	UPROPERTY(BlueprintReadWrite)
-	bool IsSprinting;
+	bool bIsSprinting;
 
 	UPROPERTY(BlueprintReadWrite)
-	bool IsCrouching;
+	bool bIsCrouching;
 
 	UPROPERTY(BlueprintReadWrite)
-	bool IsFiring;
+	bool bIsFiring;
 
 	UPROPERTY(BlueprintReadWrite)
-	bool IsDodging;
+	bool bIsDodging;
 		
 	UPROPERTY(BlueprintReadWrite)
 	float TurnRate;

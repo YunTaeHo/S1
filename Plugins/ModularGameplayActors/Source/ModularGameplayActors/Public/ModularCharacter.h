@@ -20,7 +20,7 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-    bool IsSuperArmored() const { return bSuperArmor; }
+    bool IsInvis() const { return bInvis; }
 
     /** 죽음 관련 함수 */
 protected:
@@ -33,7 +33,7 @@ protected:
     virtual void OnDeathFinished(AActor* OwningActor) {};
 
 protected:
-    UPROPERTY(BlueprintReadOnly, Category = "S1")
-    bool bSuperArmor = false;
+    UPROPERTY(BlueprintReadWrite, Category = "S1")
+    bool bInvis = false;
 
 }; 

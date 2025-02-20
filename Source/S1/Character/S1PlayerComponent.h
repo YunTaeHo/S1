@@ -58,12 +58,16 @@ public:
     void InitializePlayerInput(UInputComponent* PlayerInputComponent);
     void Input_Move(const FInputActionValue& InputActionValue);
     void Input_LookMouse(const FInputActionValue& InputActionValue);
+    void Input_Jump(const FInputActionValue& InputActionValue);
     void Input_Sprint(const FInputActionValue& InputActionValue);
     void Input_Crouch(const FInputActionValue& InputActionValue);
     void Input_AbilityInputTagPressed(FGameplayTag InputTag);
     void Input_AbilityInputTagReleased(FGameplayTag InputTag);
     void SetAbilityCameraMode(TSubclassOf<US1CameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle);
     void ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle);
+
+    bool PossibleAction(AActor* Actor, float ActionSizeZ);
+
   
     /*
      *  member variables

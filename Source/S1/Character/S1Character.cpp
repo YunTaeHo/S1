@@ -173,7 +173,7 @@ bool AS1Character::IsFalling()
 
 void AS1Character::SetSprinting()
 {
-	if (IsSprinting)
+	if (bIsSprinting)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 290.f;
 	}
@@ -182,7 +182,7 @@ void AS1Character::SetSprinting()
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	}
 
-	IsSprinting = !IsSprinting;
+	bIsSprinting = !bIsSprinting;
 }
 
 void AS1Character::HitReact(EHitResponse Respose, AActor* Target)
@@ -225,7 +225,7 @@ void AS1Character::Die()
 		}
 	}
 
-	SetActorHiddenInGame(true);
+	//SetActorHiddenInGame(true);
 }
 
 void AS1Character::Attack(AActor* AttackTarget)

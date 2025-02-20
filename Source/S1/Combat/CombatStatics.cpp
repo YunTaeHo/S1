@@ -96,8 +96,8 @@ TArray<AActor*> UCombatStatics::DamageAllNonTeamMembers(AActor* Owner, const TAr
 		// 충돌된 액터가 존재하고
 		if (AActor* HitActor = Hit.GetActor())
 		{
-			// 현재 충돌하지 않은 상태에서 서로 다른 팀이라면?
-			if (AnotherTeamNumber(HitActor, Owner) && !ActorsDamagedSoFar.Contains(HitActor))
+			// 현재 충돌하지 않은 상태에서 && 서로 다른 팀이고 && 무적이 아니라면?
+			if (AnotherTeamNumber(HitActor, Owner) && !ActorsDamagedSoFar.Contains(HitActor) && !IsInvis(HitActor))
 			{
 				// 데미지를 주고 배열에 추가한다
 				ApplyDamageToTarget(Hit.GetActor(), Owner, Info);
@@ -117,8 +117,10 @@ AActor* UCombatStatics::DamageFirstNonTeamMember(AActor* Owner, const TArray<FHi
 		// 충돌된 액터가 존재하고
 		if (AActor* HitActor = Hit.GetActor())
 		{
-			if (AnotherTeamNumber(HitActor, Owner))
+			// 서로 다른팀이고 && 무적이 아니라면?
+			if (AnotherTeamNumber(HitActor, Owner) && !IsInvis(HitActor))
 			{
+				// 데미지를 주고 바로 반환한다
 				ApplyDamageToTarget(Hit.GetActor(), Owner, Info);
 				return HitActor;
 			}
@@ -205,5 +207,24 @@ void UCombatStatics::JumpToVelocity(AActor* Owner, FVector StartPos, FVector End
 	{
 		Character->LaunchCharacter(LaunchVelocity, XYOverride, ZOverride);
 	}
+}
+
+bool UCombatStatics::IsInvis(AActor* HitActor)
+{
+	if (!HitActor)
+	{
+		return false;
+	}
+
+	if (AModularCharacter* Character = Cast<AModularCharacter>(HitActor))
+	{
+		// 무적 상태라면?(구르기) 공격 당하지 말자
+		if (Character->IsInvis())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
