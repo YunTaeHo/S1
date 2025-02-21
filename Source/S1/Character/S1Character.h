@@ -112,8 +112,7 @@ public:
 	bool IsDodging() { return bIsDodging; }
 	bool IsSprinting() { return bIsSprinting; }
 
-
-	void SetSprinting(bool SprintStart = true);
+	void SetSprinting();
 
 
 protected:

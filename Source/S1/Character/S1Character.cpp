@@ -171,9 +171,9 @@ bool AS1Character::IsFalling()
 	return GetCharacterMovement()->IsFalling();
 }
 
-void AS1Character::SetSprinting(bool SprintStart)
+void AS1Character::SetSprinting()
 {
-	if (bIsSprinting && !SprintStart)
+	if (bIsSprinting)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 290.f;
 		bIsSprinting = false;
