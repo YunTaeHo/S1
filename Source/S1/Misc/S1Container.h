@@ -23,17 +23,19 @@ struct FMovementState
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, Category = "S1|Movement")
-    float IdleSpeed;
+    FMovementState() {}
 
     UPROPERTY(EditAnywhere, Category = "S1|Movement")
-    float WalkSpeed;
+    float IdleSpeed = 0.f;
 
     UPROPERTY(EditAnywhere, Category = "S1|Movement")
-    float JogSpeed;
+    float WalkSpeed = 150.f;
 
     UPROPERTY(EditAnywhere, Category = "S1|Movement")
-    float SprintSpeed;
+    float JogSpeed = 300.f;
+
+    UPROPERTY(EditAnywhere, Category = "S1|Movement")
+    float SprintSpeed = 600.f;
 
 };
 
@@ -125,7 +127,7 @@ struct FDamageInfo
 
     /** GameplayEffect에 대한 Level */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
-    float Level;
+    float Level = 0.f;
 
     /** 공격을 수행할 GameplayEffect */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
@@ -133,19 +135,19 @@ struct FDamageInfo
 
     /** AI Perception에서 Damage의 반경 범위를 지정 */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
-    float DamageAmount;
+    float DamageAmount = 0.f;
 
     /** 공격 타입이 뭔지 */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
-    EHitResponse HitResponse;
+    EHitResponse HitResponse = EHitResponse::None;
 
     /** 방어가 가능한 지 확인 */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
-    bool bCanBlocked;
+    bool bCanBlocked = false;
 
     /** 강제로 공격을 입힐지 확인 */
     UPROPERTY(EditAnywhere, Category = "S1|Damage")
-    bool bShouldForceInterrupt;
+    bool bShouldForceInterrupt = false;
 
 };
 

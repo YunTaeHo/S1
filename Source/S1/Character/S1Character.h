@@ -127,6 +127,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsDodging;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsCameraZoom;
 		
 	UPROPERTY(BlueprintReadWrite)
 	float TurnRate;

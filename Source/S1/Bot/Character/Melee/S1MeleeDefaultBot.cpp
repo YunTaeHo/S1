@@ -39,7 +39,7 @@ void AS1MeleeDefaultBot::DamageOnEvent(AActor* DamageCursor, FDamageInfo Info)
 	{
 		FGameplayEffectContextHandle EffectContext;
 		ASC->BP_ApplyGameplayEffectToSelf(Info.DamageEffect, Info.Level, EffectContext);
-		BotController->SetStateAsFrozen();
+		//BotController->SetStateAsFrozen();
 
 		// ASC에서 HealthSet을 가져와 Hp를 가져온다
 		const US1HealthSet* HealthSet = ASC->GetSet<US1HealthSet>();

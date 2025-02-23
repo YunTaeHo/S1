@@ -8,6 +8,7 @@
 
 /** 전방 선언*/
 class UCurveVector;
+class AS1PlayerCameraManager;
 
 
 USTRUCT()
@@ -159,5 +160,9 @@ protected:
 	FVector TargetCrouchOffset = FVector::ZeroVector;
 	float CrouchOffsetBlendPct = 1.0f;
 	FVector CurrentCrouchOffset = FVector::ZeroVector;
+
+
+private:
+	AS1PlayerCameraManager* GetS1PlayerCameManager() const;
 
 };

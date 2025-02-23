@@ -9,6 +9,7 @@
 /** foward declarations */
 class AS1PlayerState;
 class US1AbilitySystemComponent;
+class AS1PlayerCameraManager;
 
 UCLASS()
 class S1_API AS1PlayerController : public ACommonPlayerController
@@ -28,5 +29,6 @@ public:
      */
     AS1PlayerState* GetS1PlayerState() const;
     US1AbilitySystemComponent* GetS1AbilitySystemComponent() const;
+    AS1PlayerCameraManager* GetS1PlayerCameManager() const;
 
 }; 

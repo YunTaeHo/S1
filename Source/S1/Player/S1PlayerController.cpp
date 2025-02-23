@@ -38,4 +38,14 @@ US1AbilitySystemComponent* AS1PlayerController::GetS1AbilitySystemComponent() co
     return (S1PS ? S1PS->GetS1AbilitySystemComponent() : nullptr);
 }
 
+AS1PlayerCameraManager* AS1PlayerController::GetS1PlayerCameManager() const
+{
+    if (AS1PlayerCameraManager* CamManager = Cast<AS1PlayerCameraManager>(PlayerCameraManager))
+    {
+        return CamManager;
+    }
+
+    return nullptr;
+}
+
 

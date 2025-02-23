@@ -75,3 +75,7 @@ DerivedDataCache/*
 
 # Package files is not uploaded
 Packages/*
+
+
+# Bulid Error, Delete this Assets
+Plugins/GameFeatures/ShooterCore/Content/Game/B_Bot_Test.uasset

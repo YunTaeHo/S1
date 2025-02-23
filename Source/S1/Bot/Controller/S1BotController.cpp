@@ -108,6 +108,7 @@ void AS1BotController::CleanupPlayerState()
 
 void AS1BotController::SetStateAsAttacking(AActor* TargetActor, bool UseLastKnownAttackTarget)
 {
+	TargetEnemy = TargetActor;
 	Blackboard->SetValueAsObject(TargetEnemyKeyName, TargetEnemy);
 	Blackboard->SetValueAsEnum(StateKeyName, (uint8)EAIState::Attacking);
 }

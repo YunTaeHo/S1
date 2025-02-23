@@ -385,12 +385,6 @@ void US1PlayerComponent::Input_Sprint(const FInputActionValue& InputActionValue)
     {
         if (AS1Character* S1Character = Cast<AS1Character>(Pawn))
         {
-            // 웅크리기 중이거나 점프 중이면 달리기 실행 불가
-            if (S1Character->IsFalling())
-            {
-                return;
-            }
-
             // 스프린트를 실행
             S1Character->SetSprinting();
         }

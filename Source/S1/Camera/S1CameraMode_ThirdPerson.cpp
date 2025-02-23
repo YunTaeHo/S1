@@ -2,16 +2,16 @@
 // Copyright (c) S1
 
 #include "S1CameraMode_ThirdPerson.h"
+#include "S1PlayerCameraManager.h"
+#include "Character/S1Character.h"
+#include "Player/S1PlayerController.h"
 #include "Curves/CurveVector.h"
 #include "Camera/S1CameraMode.h"
 #include "Components/PrimitiveComponent.h"
-#include "Curves/CurveVector.h"
 #include "Engine/Canvas.h"
 #include "GameFramework/CameraBlockingVolume.h"
-//#include "LyraCameraAssistInterface.h"
-#include "GameFramework/Controller.h"
-#include "GameFramework/Character.h"
 #include "Math/RotationMatrix.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(S1CameraMode_ThirdPerson)
 
 namespace LyraCameraMode_ThirdPerson_Statics
@@ -34,6 +34,11 @@ US1CameraMode_ThirdPerson::US1CameraMode_ThirdPerson()
 
 void US1CameraMode_ThirdPerson::UpdateView(float DeltaTime)
 {
+	if (AS1PlayerCameraManager* S1CameraManager = GetS1PlayerCameManager())
+	{
+		S1CameraManager->UpdateView(DeltaTime);
+	}
+
 	UpdateForTarget(DeltaTime);
 	UpdateCrouchOffset(DeltaTime);
 
@@ -346,4 +351,22 @@ void US1CameraMode_ThirdPerson::UpdateCrouchOffset(float DeltaTime)
 	}
 }
 
+PRAGMA_DISABLE_OPTIMIZATION
+AS1PlayerCameraManager* US1CameraMode_ThirdPerson::GetS1PlayerCameManager() const
+{
+	if (const AActor* TargetActor = GetTargetActor())
+	{
+		if (const AS1Character* Character = Cast<AS1Character>(TargetActor))
+		{
+			if (const AS1PlayerController* S1PC = Cast<AS1PlayerController>(Character->GetController()))
+			{
+				return S1PC->GetS1PlayerCameManager();
+			}
+			
+		}
+	}
+
+	return nullptr;
+}
+PRAGMA_ENABLE_OPTIMIZATION
 

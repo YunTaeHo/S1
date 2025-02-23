@@ -143,6 +143,9 @@ public:
 
 	int32 GetCurrentAttackToken() const { return TokensUseInCurrentAttack; }
 
+	UFUNCTION(BlueprintCallable)
+	bool CanAttack() const { return bCanAttack; }
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "S1|Character")
     TObjectPtr<US1HealthComponent> HealthComponent;
