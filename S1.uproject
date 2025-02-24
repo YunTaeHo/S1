@@ -66,6 +66,10 @@
 		{
 			"Name": "SkeletalMeshModelingTools",
 			"Enabled": true
+		},
+		{
+			"Name": "ActorPalette",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
