@@ -185,7 +185,7 @@ void UCombatStatics::SphereTraceDamage(AActor* WorldContextObject, FVector Start
 			ObjectTypes,
 			false,
 			ActorToIgnore,
-			EDrawDebugTrace::Type::ForDuration,
+			EDrawDebugTrace::Type::None,
 			Hits,
 			bIgnoreSelf
 		))
